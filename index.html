@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Quiz Diagnóstico de Interferência — Ascensão</title>
+    <meta name="description" content="Descubra o que está operando dentro de você. Quiz diagnóstico gratuito.">
+    <meta property="og:title" content="Quiz Diagnóstico de Interferência">
+    <meta property="og:description" content="Descubra o que está operando dentro de você. ~5 minutos. 100% gratuito.">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body, #root { min-height: 100vh; width: 100%; }
+        body { background: #050a14; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+        /* Prevent iOS zoom on input focus */
+        input, select, textarea { font-size: 16px !important; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
+    <script type="text/babel" data-type="module">
+const { useState, useEffect, useRef } = React;
+
+// ═══════════════════════════════════════════════════════════════
+// QUIZ DIAGNÓSTICO DE INTERFERÊNCIA — AWFUNNELS
+// v6.0 — Output redesenhado (fixes P1-P7, ~80% utilização inputs)
+// Evento 27/Abr/2026
+// ═══════════════════════════════════════════════════════════════
+
+// ─── DESIGN TOKENS ──────────────────────────────────────────────
+const C = {
+  bg1: "#050a14", bg2: "#080e1c", bg3: "#0b1225",
+  blue: "#4da6ff", blueDark: "#1a6dd4", blueGlow: "rgba(77,166,255,0.15)",
+  blueGlow2: "rgba(77,166,255,0.08)", blueBorder: "rgba(77,166,255,0.2)",
+  blueBorder2: "rgba(77,166,255,0.12)",
+  text: "#e0e8f4", textMid: "#a0b4d0", textDim: "#6a7f9e",
+  card: "rgba(10,18,35,0.6)", cardBorder: "rgba(77,166,255,0.12)",
+};
+
+const NOMES_RAIZ = { familiar_financeira: "familiar-financeira", familiar_relacional: "relacional", familiar_identidade: "do EU SOU", preverbal: "pré-verbal", religiosa: "religiosa", sistemica: "sistêmica", biografica: "biográfica" };
+const NOMES_PADRAO = { repetidor: "repetição", sabotador: "sabotagem", esgotado: "esgotamento", comparador: "comparação", anestesiado: "anestesia", paralisado: "paralisia" };
+const SUPERFICIES = [
+  { id: "financeiro", label: "Financeiro — dinheiro, dívidas, estagnação financeira" },
+  { id: "relacional", label: "Relacional — relacionamentos, solidão, conflitos afetivos" },
+  { id: "familiar", label: "Familiar — conflitos familiares, distância, mágoas" },
+  { id: "carreira", label: "Carreira — estagnação profissional, falta de propósito" },
+  { id: "saude", label: "Saúde — corpo, peso, cansaço, dores sem explicação" },
+  { id: "emocional", label: "Emocional — ansiedade, medo, angústia, vazio" },
+  { id: "espiritual", label: "Espiritual — desconexão com Deus, dúvidas de fé" },
+];
+
+// ─── LOGO + BANNER COMPONENT ────────────────────────────────────
+function AscensaoHeader({ compact }) {
+  return (
+    <div style={{ textAlign: "center", marginBottom: compact ? 24 : 0, paddingTop: compact ? 16 : 0 }}>
+      {/* Logo Arrow */}
+      <svg width={compact ? 36 : 52} height={compact ? 30 : 44} viewBox="0 0 52 44" fill="none" style={{ display: "block", margin: "0 auto", marginBottom: compact ? 6 : 10 }}>
+        <path d="M26 0L52 32L44 32L26 10L8 32L0 32L26 0Z" fill="url(#blueGrad)" />
+        <path d="M26 16L42 38L36 38L26 24L16 38L10 38L26 16Z" fill={C.bg1} />
+        <defs><linearGradient id="blueGrad" x1="26" y1="0" x2="26" y2="38"><stop stopColor="#6cc5ff" /><stop offset="1" stopColor="#1a6dd4" /></linearGradient></defs>
+      </svg>
+      {!compact && <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: 28, fontWeight: 700, letterSpacing: 8, color: C.textMid, textTransform: "uppercase", marginBottom: 6, background: "linear-gradient(180deg, #c0d0e4 30%, #6a7f9e 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Ascensão</div>}
+      <div style={{ fontFamily: "'Outfit', sans-serif", fontSize: compact ? 10 : 11, fontWeight: 600, letterSpacing: compact ? 2 : 3, color: C.blue, textTransform: "uppercase", opacity: 0.85 }}>
+        Aula ao vivo e gratuita · 27/04 · 20h
+      </div>
+    </div>
+  );
+}
+
+// ─── REGISTRO DE LINGUAGEM POR P8 ──────────────────────────────
+function getRegistro(p8) { const m = { A: 1, B: 1, C: 2, D: 3, E: 3 }; return m[p8] || 2; }
+
+
+
+// ═══ v6.0 — MODULADOR DEMOGRÁFICO EXPANDIDO ═══
+function moduladorDemo(answers) {
+  const idade = answers.Q_IDADE || "35-44";
+  const jovem = ["<18","18-24","25-34"].includes(idade);
+  const maduro = ["45-54","55-64","65+"].includes(idade);
+  const registro_etario = jovem ? "jovem" : maduro ? "maduro" : "adulto";
+  const renda = answers.Q_RENDA || "5k";
+  const financeiro = ["20k","50k","100k","100k+"].includes(renda) ? "alto" : ["0","1k","2k"].includes(renda) ? "baixo" : "medio";
+  const rel = answers.Q_RELIGIAO || "deista";
+  const espiritual = ["evangelico","catolico"].includes(rel) ? "religioso" : ["espirita","deista","outra"].includes(rel) ? "espiritual" : "secular";
+  const civil = answers.Q_CIVIL || "solteiro";
+  const ocup = answers.Q_OCUPACAO || "clt";
+  const gen = answers.GENERO || "O";
+  const suf = gen === "F" ? "a" : gen === "M" ? "o" : "o(a)";
+  const familia = answers.Q_FAMILIA || "sozinho";
+  const FAIXA_MAP = {"<18":"menos de 18","18-24":"18 a 24","25-34":"25 a 34","35-44":"35 a 44","45-54":"45 a 54","55-64":"55 a 64","65+":"mais de 65"};
+  const faixa_label = FAIXA_MAP[idade] || "35 a 44";
+  const OCUP_CTX = {
+    clt:{label:"empregad"+suf+" CLT",rotina:"no trabalho",pressao:"a empresa cobra resultado enquanto a interferência cobra imobilidade"},
+    autonomo:{label:"autônom"+suf,rotina:"na correria de quem não tem rede",pressao:"cada mês sem resultado é uma conta que não fecha"},
+    empresario:{label:"empresári"+suf,rotina:"na gestão do negócio",pressao:"o peso de manter tudo funcionando enquanto algo trava por dentro"},
+    aposentado:{label:"aposentad"+suf,rotina:"numa rotina que deveria ser leve",pressao:"tempo livre que virou vazio"},
+    desempregado:{label:"em transição profissional",rotina:"na busca por recomeço",pressao:"cada dia sem trabalho reforça o código de que algo está errado com você"},
+    estudante:{label:"estudante",rotina:"entre aulas e incertezas",pressao:"o futuro deveria ser promessa mas parece ameaça"},
+    dolar:{label:"do lar",rotina:"dentro de casa",pressao:"cuidar de todo mundo sem espaço pra cuidar de si"},
+  };
+  const ocup_ctx = OCUP_CTX[ocup] || OCUP_CTX.clt;
+  const CIVIL_CTX = {
+    solteiro:{label:"solteir"+suf,frase_rel:"sem parceiro"+suf},
+    namorando:{label:"namorando",frase_rel:"num relacionamento"},
+    casado:{label:"casad"+suf,frase_rel:"num casamento"},
+    divorciado:{label:"divorciad"+suf,frase_rel:"carregando a marca de uma relação que acabou"},
+    viuvo:{label:"viúv"+suf,frase_rel:"carregando a marca de uma perda"},
+  };
+  const civil_ctx = CIVIL_CTX[civil] || CIVIL_CTX.solteiro;
+  const RENDA_CTX_ALL = {
+    clt:{baixo:"a conta não fecha no fim do mês",medio:"dá pra viver, mas algo trava antes de chegar no próximo nível",alto:"ganha bem, mas o dinheiro não trouxe a paz que deveria"},
+    autonomo:{baixo:"o dinheiro não entra na proporção do esforço",medio:"o negócio funciona, mas algo trava antes de chegar onde poderia",alto:"o resultado veio, mas não na proporção do que você sabe que pode"},
+    empresario:{baixo:"o negócio não sustenta o que deveria",medio:"o negócio funciona, mas algo trava o crescimento antes de chegar onde poderia",alto:"o negócio fatura bem, mas a paz que deveria vir junto não veio"},
+    aposentado:{baixo:"a aposentadoria não reflete décadas de esforço",medio:"dá pra viver, mas a sensação de que deveria ser mais é constante",alto:"o dinheiro veio, mas o propósito não veio junto"},
+    desempregado:{baixo:"sem renda fixa e a pressão cresce a cada dia",medio:"ainda tem reserva, mas a incerteza pesa",alto:"tem reserva, mas a identidade está abalada pela falta de direção"},
+    estudante:{baixo:"o dinheiro é curto e a pressão cresce",medio:"dá pra se manter, mas a incerteza do futuro pesa",alto:"o dinheiro não é o problema — a direção é"},
+    dolar:{baixo:"o orçamento da casa é apertado e ninguém reconhece seu esforço",medio:"a casa funciona, mas o espaço pra si mesma não existe",alto:"o dinheiro não falta, mas a sensação de dependência sim"},
+  };
+  const renda_ctx = (RENDA_CTX_ALL[ocup]||RENDA_CTX_ALL.clt)[financeiro] || "algo não encaixa";
+  const FAM_CTX = {
+    sozinho:(suf==="a"?"sozinha":suf==="o"?"sozinho":"sozinho(a)"),
+    casal_sem:"com parceiro"+suf+", sem filhos",
+    casal_filhos:"com filhos que observam e absorvem TUDO que você vive",
+    solo:"segurando tudo sozin"+suf+" — mãe/pai solo",
+    familiares:"sob o mesmo teto de quem pode ter instalado o código",
+  };
+  const familia_ctx = FAM_CTX[familia] || "";
+  const REL_LABEL = {evangelico:"evangélic"+suf,catolico:"católic"+suf,espirita:"espírita",deista:"alguém com fé mas sem religião fixa",outra:"praticante de uma tradição espiritual",ateu:"sem fé institucional"};
+  const religiao_label = REL_LABEL[rel] || "";
+  const tempo_frase = maduro ? "Depois de décadas vivendo com isso" : jovem ? "Mesmo jovem, esse código já opera há anos" : "Há anos vivendo com isso";
+  return { registro_etario, financeiro, espiritual, civil, ocup, suf, faixa_label, ocup_ctx, civil_ctx, renda_ctx, familia_ctx, religiao_label, tempo_frase, familia };
+}
+
+// ═══ v5.0 — SCORING RELATIVO ═══
+function scoringRelativo(raiz, answers) {
+  const sets = {
+    familiar_financeira: ["P12","P19","P_NEW_FIN"],
+    familiar_relacional: ["P16","P18","P_NEW_REL"],
+    familiar_identidade: ["P14","P_NEW_ID"],
+    preverbal: ["P25","P26","P27"],
+    religiosa: ["P13","P15","P17"],
+    sistemica: ["P20","P21","P22"],
+    biografica: ["P23","P24","P33"],
+  };
+  const perguntas = sets[raiz] || [];
+  const vals = perguntas.map(p => ({ id: p, val: answers[p] || 0 }));
+  const media = vals.reduce((s,v) => s + v.val, 0) / (vals.length || 1);
+  const max = Math.max(...vals.map(v => v.val));
+  return vals.map(v => {
+    const destaque = v.val === max && (max - media >= 0.5 || vals.filter(x => x.val === max).length <= 2);
+    if (destaque && v.val >= 4) return { id: v.id, nivel: "alto", val: v.val };
+    if (destaque || v.val >= media) return { id: v.id, nivel: "medio", val: v.val };
+    return { id: v.id, nivel: "baixo", val: v.val };
+  });
+}
+
+// ═══ v5.0 — TEXTOS CONDICIONAIS POR NÍVEL ═══
+const COND_TEXTOS = {
+  P12: { alto: "Dentro da sua casa, dinheiro era sinônimo de TENSÃO. Essa tensão virou a frequência base da sua relação com dinheiro.", medio: "Dentro da sua casa, dinheiro carregava peso. Talvez não fosse briga aberta, mas existia uma tensão — um desconforto quando o assunto aparecia. Essa tensão, mesmo sutil, se gravou.", baixo: "Talvez dinheiro não fosse tema de briga na sua casa. Mas havia uma frequência — sutil, quase invisível — que dizia: cuidado. E o sutil grava tanto quanto o explícito." },
+  P19: { alto: "Frases de escassez eram o som ambiente. Essas frases não foram conselho. Foram instalação.", medio: "Frases sobre escassez — mesmo que sutis — se gravaram. A frequência de \"não pode,\" \"não dá,\" \"cuidado\" virou o tom base.", baixo: "Talvez as frases não fossem diretas. Mas a atmosfera dizia algo — e o subconsciente captou." },
+  P_NEW_FIN: { alto: "Quando alguém prosperava, a reação da sua casa era desconfiança ou julgamento. O código não diz apenas que dinheiro é tensão. Diz que QUEM TEM dinheiro é suspeito.", medio: "Existia uma camada de desconfiança em relação a quem prosperava. Sutil, mas presente.", baixo: "A relação com quem tinha mais pode não ter sido explicitamente hostil. Mas o subconsciente registrou uma frequência: prosperidade não era celebrada." },
+  P16: { alto: "Existia conflito real entre seus pais. O modelo que se gravou diz: RELAÇÃO = RISCO.", medio: "As relações dentro da sua casa tinham tensão. O modelo que se gravou diz que intimidade e desconforto andam juntos.", baixo: "Talvez não houvesse briga aberta. Mas a ausência de conexão visível entre seus pais também grava um modelo: relação é distância." },
+  P18: { alto: "Expressar o que sentia era impossível. O código: SENTIR É PERIGOSO.", medio: "Expressar sentimentos era difícil na sua casa. A emoção não tinha espaço seguro.", baixo: "Não era proibido sentir. Mas também não era encorajado. E a ausência de espaço emocional grava tanto quanto a proibição." },
+  P_NEW_REL: { alto: "Afeto entre seus pais era raro ou inexistente. Você cresceu sem referência do que uma relação saudável parece.", medio: "Demonstrações de afeto eram raras. O modelo de relação que você absorveu era funcional, não emocional.", baixo: "Talvez houvesse carinho. Mas o modelo dominante era mais funcional do que emocional. E esse modelo se gravou." },
+  P14: { alto: "Você absorveu uma mensagem direta: \"eu não sou capaz.\" O código mestre: EU NÃO SOU SUFICIENTE.", medio: "As mensagens sobre o seu valor eram ambíguas ou ausentes. O silêncio gravou a dúvida.", baixo: "Talvez ninguém tenha dito que você era incapaz. Mas a ausência de validação consistente criou um vácuo — e o vácuo se preencheu com dúvida." },
+  P_NEW_ID: { alto: "Seus sonhos não eram celebrados — eram ignorados ou ridicularizados.", medio: "Seus sonhos não tinham palco na sua casa.", baixo: "Talvez seus sonhos não fossem ativamente desencorajados. Mas a falta de combustível emocional grava tanto quanto a crítica." },
+  P25: { alto: "Quando algo bom acontece, a primeira reação não é alegria. É MEDO. Medo de que vai acabar.", medio: "Existe uma desconfiança quando algo bom acontece. Uma sutil expectativa de que vai acabar.", baixo: "Algo bom acontece e você recebe — mas com uma sutil reserva. Uma parte que não se entrega por completo." },
+  P26: { alto: "Pedir ajuda é quase impossível. Não é orgulho. É um código gravado antes das palavras.", medio: "Pedir ajuda é difícil pra você. Existe uma resistência que não é racional.", baixo: "Você pede ajuda quando precisa. Mas existe um custo interno — um esforço que não deveria ser necessário." },
+  P27: { alto: "Você quer se conectar. Mas na hora, recua. Dois programas ao mesmo tempo.", medio: "Existe uma oscilação: quer se conectar, mas algo recua na hora.", baixo: "A conexão existe. Mas algo a mantém em dose controlada — nunca totalmente aberta." },
+  P13: { alto: "Prosperidade foi associada a PERIGO PARA A ALMA.", medio: "Existia uma associação — talvez sutil — entre ter mais e estar errado. Uma desconfiança em relação à prosperidade.", baixo: "A mensagem pode não ter sido explícita. Mas existia uma vibração — sutil — de que ter demais não era seguro espiritualmente." },
+  P15: { alto: "Sofrimento virou virtude. Esse código faz a DOR parecer mérito.", medio: "Existia uma ideia de que sofrer era parte do caminho. Que a dor tinha propósito ou era prova.", baixo: "Ninguém disse \"sofra.\" Mas havia uma narrativa — talvez na família, talvez na igreja — de que a dor era parte do plano." },
+  P17: { alto: "Querer algo pra si gera CULPA. Esse código usa a linguagem de Deus. Mas não é Deus.", medio: "Existe uma culpa — às vezes sutil — quando quer algo só pra você. Como se desejar fosse errado.", baixo: "A culpa pode não ser intensa. Mas existe um leve desconforto ao priorizar a si — como se houvesse um custo espiritual em querer." },
+  P20: { alto: "As pessoas ao seu redor não acreditam no que você pode se tornar.", medio: "O ambiente ao redor não oferece sustentação pra quem você quer ser.", baixo: "O ambiente não é hostil. Mas também não sustenta a versão de você que quer emergir. A indiferença grava tanto quanto a oposição." },
+  P21: { alto: "O ambiente não é seguro pra você ser quem realmente é. Você performa uma versão reduzida de si.", medio: "Você não se sente totalmente seguro pra ser quem é no seu ambiente.", baixo: "Você é quem é. Mas existe um ajuste — sutil — que faz dependendo de quem está ao redor. E esse ajuste custa energia." },
+  P22: { alto: "Pressão de gênero. O molde está apertado.", medio: "Existe uma pressão de gênero que opera em camadas.", baixo: "A pressão de gênero pode não ser óbvia. Mas existe uma expectativa — social, familiar — sobre o que alguém do seu gênero deveria ser." },
+  P23: { alto: "Existe um evento que dividiu a sua vida em duas partes.", medio: "Algo aconteceu que marcou. Talvez não um evento único, mas uma fase que deixou cicatriz.", baixo: "Não houve um terremoto único. Mas o acúmulo de experiências criou uma marca — e essa marca gravou um código." },
+  P24: { alto: "O evento virou quem você É. A dor se fundiu com a identidade.", medio: "O evento deixou marca na forma como você se vê.", baixo: "O que aconteceu não definiu você. Mas deixou uma impressão — e essa impressão ainda opera." },
+  P33: { alto: "Você parou de tentar. Não por preguiça. Porque o corpo aprendeu: tentar = sofrer.", medio: "Existe um cansaço de tentar. Uma parte de você questiona se vale a pena.", baixo: "Você ainda tenta. Mas a energia não é a mesma. Existe um desgaste acumulado que não vem do esforço — vem da repetição sem resultado." },
+};
+
+// ═══ v5.0 — TRANSIÇÃO RAIZ ≠ SUPERFÍCIE (FIX BUG #3) ═══
+const RAIZ_SUP_MAP = {
+  familiar_financeira: ["financeiro"],
+  familiar_relacional: ["relacional","familiar"],
+  familiar_identidade: ["carreira","emocional"],
+  preverbal: ["emocional","relacional","saude"],
+  religiosa: ["espiritual","financeiro","emocional"],
+  sistemica: ["carreira","financeiro"],
+  biografica: ["relacional","emocional","saude"],
+};
+function gerarTransicaoRaizSup(raiz, sup) {
+  const naturais = RAIZ_SUP_MAP[raiz] || [];
+  if (naturais.includes(sup)) {
+    const raiz_nome = NOMES_RAIZ[raiz];
+    const sup_lower = (SUPERFICIES.find(s=>s.id===sup)?.label||sup).split("—")[0].trim().toLowerCase();
+    return "Não é coincidência que a área que mais sofre seja " + sup_lower + ". A interferência de origem " + raiz_nome + " se expressa exatamente aí — porque é onde a identidade encontra a maior distância entre o que você quer e o que ela permite.";
+  }
+  const _raiz_nome = NOMES_RAIZ[raiz];
+  const _sup_lower = (SUPERFICIES.find(s=>s.id===sup)?.label||sup).split("—")[0].trim().toLowerCase();
+  return "Você disse que a área que mais sofre é " + _sup_lower + ". A interferência não atua NESSA área — ela atua ATRAVÉS dessa área. A raiz é " + _raiz_nome + ". E ela se expressa em " + _sup_lower + " porque é ali que a identidade encontra a maior distância entre o que você quer e o que ela aceita.";
+}
+
+// ═══ v5.0 — P_ASPIRAÇÃO + P35 ═══
+const ASPIRACAO_TEXTOS = {
+  financeiro: "ganhar o dinheiro que merece, sem teto",
+  relacional: "viver uma relação de verdade, sem medo",
+  familiar: "ter paz com a sua família",
+  carreira: "seguir o propósito profissional sem travar",
+  saude: "cuidar do corpo de verdade",
+  emocional: "se sentir leve, presente, em paz",
+  espiritual: "se reconectar com Deus sem culpa",
+};
+const P35_TEXTOS = {
+  financeiro: "finalmente ganharia e manteria o dinheiro",
+  relacional: "teria uma relação de verdade, sem medo",
+  familiar: "teria paz com a família",
+  carreira: "seguiria o propósito sem travar",
+  saude: "o corpo finalmente responderia",
+  emocional: "se sentiria leve, sem ansiedade",
+  espiritual: "se reconectaria com Deus de verdade",
+};
+function gerarBlocoAspiracao(answers) {
+  const asp = answers.P_ASPIRACAO, p35 = answers.P35;
+  if (!asp || !p35) return null;
+  if (asp === p35) return "Quando perguntei o que faria se nada te impedisse, a resposta foi clara: " + ASPIRACAO_TEXTOS[asp] + ". E quando perguntei o que mudaria se a interferência sumisse, disse a mesma coisa: " + P35_TEXTOS[p35] + ". Não é coincidência. É a interferência operando exatamente nesse ponto.";
+  if (asp === answers.P10) return "Quando perguntei o que faria se nada te impedisse, a resposta foi: " + ASPIRACAO_TEXTOS[asp] + ". E quando perguntei o que mudaria sem a interferência, disse: " + P35_TEXTOS[p35] + ". A diferença entre as duas respostas mostra as camadas: uma é o que você quer. A outra é o que a interferência bloqueia.";
+  return "Quando perguntei o que faria se nada te impedisse, a resposta foi: " + ASPIRACAO_TEXTOS[asp] + ". Mas quando perguntei o que mudaria se a interferência sumisse, disse outra coisa: " + P35_TEXTOS[p35] + ". Essa diferença é a interferência mostrando que opera em mais de uma área ao mesmo tempo.";
+}
+
+// ═══ v5.0 — 42 CRUZAMENTOS IDENTIDADE × PADRÃO ═══
+const CRUZAMENTO_ID_PAD = {
+  familiar_financeira: {
+    repetidor: "Você começa a organizar, avança alguns dias, e o porteiro puxa de volta. O teto financeiro que a identidade aceita reseta o ciclo toda vez.",
+    sabotador: "O dinheiro entra — e algo dentro de você cria uma razão pra ele sair. Porque ultrapassar o teto financeiro que a identidade aceita ativa o mecanismo de correção.",
+    esgotado: "Você trabalha mais que a maioria. E o resultado financeiro não acompanha. Porque a energia vai pra FORA — e o teto está DENTRO.",
+    comparador: "Você olha pra quem tem mais e a identidade usa como prova: \"não é pra mim.\" A comparação financeira reforça o teto e paralisa a ação.",
+    anestesiado: "Você olha pra sua situação financeira e não sente nada. É a identidade que desligou a ambição pra proteger o código: \"dinheiro = tensão.\"",
+    paralisado: "Você sabe exatamente o que fazer pro dinheiro entrar. Mas na hora, trava. O porteiro bloqueia porque agir com dinheiro ativa a tensão que a identidade reconhece como perigo.",
+  },
+  familiar_relacional: {
+    repetidor: "O roteiro se repete com parceiros diferentes. Começo bom, desgaste, distância. Porque o modelo que a identidade reconhece como \"normal\" é tenso.",
+    sabotador: "Quando o relacionamento começa a dar certo, algo cria conflito. A paz relacional não cabe na identidade construída no conflito.",
+    esgotado: "Você se entrega mais do que recebe. Porque a identidade diz que amor é esforço — e quando o esforço para, o amor acaba.",
+    comparador: "Casais felizes parecem de outro planeta. A comparação reforça o código: \"relação boa não é pra mim.\"",
+    anestesiado: "Você está no relacionamento mas não sente. A identidade desligou a expectativa de conexão.",
+    paralisado: "Você sabe o que quer — sair, ficar, se abrir — mas na hora, congela. O porteiro bloqueia porque \"se eu me mover, posso sofrer.\"",
+  },
+  familiar_identidade: {
+    repetidor: "Começa projetos com convicção. Dias depois, a voz aparece: \"quem você pensa que é?\" O ciclo de começar e parar é o porteiro defendendo o código de insuficiência.",
+    sabotador: "Quando o reconhecimento chega, você faz algo que compromete. Porque o sucesso ativa uma dissonância: a identidade diz que você não deveria estar ali.",
+    esgotado: "Você se esforça o dobro pra provar que é capaz. E o cansaço não é do trabalho — é de tentar convencer uma identidade que já decidiu que você não é suficiente.",
+    comparador: "Toda comparação reforça o veredito. Você olha pro outro e confirma: \"ele sim, eu não.\" O impostorismo usa a comparação como combustível.",
+    anestesiado: "Depois de tanto ouvir \"você não é capaz,\" a ambição desligou. O corpo parou de lutar contra uma identidade que absorveu como verdade.",
+    paralisado: "Você tem a ideia, o plano, a capacidade. E na hora de agir, ouve: \"e se eu fracassar?\" O porteiro da identidade de insuficiência bloqueia antes do primeiro passo.",
+  },
+  preverbal: {
+    repetidor: "O ciclo de começar e parar não vem de uma decisão. Vem de uma sensação. O corpo ativa o alerta e você recua — sem saber por quê.",
+    sabotador: "Quando as coisas dão certo, o corpo estranha. Segurança não é a frequência que ele conhece. Então cria caos — porque caos é familiar.",
+    esgotado: "O cansaço não é do esforço. É do estado de alerta constante. O corpo gasta energia vigiando perigos que não existem mais.",
+    comparador: "Você olha pra pessoas \"normais\" e se sente diferente. A comparação ativa a sensação de que algo está errado com VOCÊ.",
+    anestesiado: "Depois de tanta sensação sem nome, o corpo desligou. A anestesia é a última defesa de um sistema que aprendeu a sobreviver sentindo menos.",
+    paralisado: "O corpo congela. Não é decisão. É reflexo. A paralisia pré-verbal é anterior à linguagem — o bloqueio não está no pensamento.",
+  },
+  religiosa: {
+    repetidor: "Você começa algo novo e a culpa aparece. Recua. Tenta de novo. Culpa de novo. O ciclo é o porteiro religioso protegendo o código de que desejar é pecado.",
+    sabotador: "Quando começa a prosperar, algo puxa o freio. A identidade religiosa associou prosperidade a punição. Sabotar é o corpo pagando o \"preço espiritual\" antecipado.",
+    esgotado: "Você faz tudo certo — ora, se dedica, trabalha — e o resultado não vem. O esgotamento é de esforço na direção errada: tentando agradar um Deus que a interferência inventou.",
+    comparador: "Você olha pra quem prospera e sente uma mistura de inveja e julgamento. O código religioso usa a comparação dos dois lados.",
+    anestesiado: "Depois de tanta culpa por desejar, o desejo desligou. A anestesia é o corpo parando de querer — porque querer ativa punição.",
+    paralisado: "Você sabe o que fazer. Mas agir ativa a culpa. O porteiro religioso trava a ação usando medo de condenação.",
+  },
+  sistemica: {
+    repetidor: "Você começa, o sistema não apoia, você recua. O ciclo se repete porque a identidade absorveu o teto que o sistema impôs.",
+    sabotador: "Quando ultrapassa o que o sistema validou, algo corrige. A sabotagem é a identidade voltando pro lugar que o sistema demarcou.",
+    esgotado: "O esforço é desproporcional ao resultado porque você está remando contra uma identidade que diz: \"não é pra alguém como eu.\"",
+    comparador: "A comparação confirma o sistema: quem nasceu em outro CEP, outra cor, outra classe, tem outro teto.",
+    anestesiado: "Depois de tanto \"não é pra você,\" o desejo se apagou. Você para de querer o que o sistema diz que não pode ter.",
+    paralisado: "Você vê a oportunidade. E ouve: \"gente como eu não faz isso.\" A paralisia sistêmica é o porteiro defendendo os limites que o ambiente definiu.",
+  },
+  biografica: {
+    repetidor: "Você tenta recomeçar, avança um pouco, e o corpo ativa a memória. O evento volta — não como lembrança, como sensação. E o ciclo recomeça.",
+    sabotador: "Quando começa a construir algo novo, a identidade pós-trauma puxa o freio. Porque construir algo bom contradiz a lei: \"depois do que aconteceu, eu não posso ter isso.\"",
+    esgotado: "Você faz tudo certo — mas carregando o peso do evento. O esgotamento biográfico é o custo de viver com uma identidade construída ao redor da dor.",
+    comparador: "Você olha pra quem não viveu o que você viveu e sente injustiça. A comparação reforça a identidade de vítima.",
+    anestesiado: "Depois de tanta dor, o corpo desligou a capacidade de sentir. Se eu não sentir, não posso ser ferido de novo.",
+    paralisado: "O evento gravou: \"agir = sofrer.\" Toda vez que uma oportunidade exige ação, o corpo lembra. E congela.",
+  },
+};
+
+// ─── CIÊNCIA DE INSTALAÇÃO (exclusivo S2) ───────────────────────
+const CIENCIA_THETA = {
+  1: "Até os 7 anos, o cérebro de uma criança funciona em estado de hipnose — a ciência chama de ondas theta. Nesse estado, a mente não questiona, não filtra, não discorda. Tudo que entra vira lei. As frases que você ouviu, os silêncios que sentiu, os modelos que viu — tudo se gravou como verdade absoluta no seu subconsciente. Não como opinião. Como LEI.",
+  2: "Até os 7 anos, o cérebro opera em ondas theta — o equivalente neurológico a hipnose profunda num adulto. A Rede Neural Padrão, que depois vai funcionar como filtro analítico, só se forma entre os 6 e 12 anos. Antes disso, não existe capacidade de avaliar se algo é justo, verdadeiro ou falso. Tudo que entra vira programação direta no subconsciente.",
+  3: "Entre 2 e 6 anos, o córtex pré-frontal opera predominantemente em ondas theta (4-8Hz), criando um estado de sugestionabilidade máxima — equivalente a hipnose profunda. A Rede Neural Padrão (Default Mode Network), que funcionará como guardiã permanente dos paradigmas identitários, só se consolida entre 6-12 anos (Satterthwaite et al., NeuroImage, 2020). Antes dessa janela, toda informação recebida é codificada como programação direta, sem filtro analítico.",
+};
+const CIENCIA_EPIGENETICA = {
+  1: "E a ciência descobriu algo ainda mais forte: traumas se passam de pais pra filhos pelo DNA. Não pela memória — pelo corpo. Seus avós viveram a hiperinflação dos anos 80-90. 85% de inflação ao mês. Esse pânico financeiro está gravado em você biologicamente. Você não herdou só as frases dos seus pais. Herdou a frequência de medo deles, sem ninguém precisar contar a história.",
+  2: "E vai além da sua família direta. Estudos de epigenética mostram que traumas são transmitidos biologicamente por até 3 gerações. Não pela memória, pela expressão dos genes. Seus avós viveram a hiperinflação dos anos 80-90. Essa frequência de pânico financeiro está gravada no seu corpo.",
+  3: "E a transmissão não é apenas cultural. Dias e Ressler (Nature Neuroscience, 2013) demonstraram transmissão transgeracional de sensibilidade ao medo via metilação do gene Olfr151. Yehuda et al. (Biological Psychiatry, 2016) confirmaram alterações no gene FKBP5 em filhos de sobreviventes do Holocausto. Seus avós viveram a hiperinflação dos anos 80-90 — essa frequência de pânico financeiro foi transmitida biologicamente.",
+};
+
+
+// ═══ v6.0 — EPIGENÉTICA CALIBRADA POR IDADE ═══
+function calibrarEpigenetica(registro, idade) {
+  const base = CIENCIA_EPIGENETICA[registro];
+  if (!base) return base;
+  const maduro65 = ["65+"].includes(idade);
+  const maduro55 = ["55-64"].includes(idade);
+  const maduro45 = ["45-54"].includes(idade);
+  const adulto = ["35-44"].includes(idade);
+  const jovem = ["25-34"].includes(idade);
+  // <18 e 18-24 mantém "Seus avós" (default)
+  let frase_quem;
+  if (maduro65) frase_quem = "Você MESMO viveu a hiperinflação dos anos 80-90";
+  else if (maduro55) frase_quem = "Você viveu a hiperinflação dos anos 80-90 quando era jovem";
+  else if (maduro45) frase_quem = "Seus pais enfrentaram a hiperinflação dos anos 80-90 enquanto você era criança";
+  else if (adulto) frase_quem = "Seus pais viveram a hiperinflação dos anos 80-90";
+  else if (jovem) frase_quem = "Seus pais e avós viveram a hiperinflação dos anos 80-90";
+  else frase_quem = "Seus avós viveram a hiperinflação dos anos 80-90";
+  return base.replace(/Seus avós viveram a hiperinflação dos anos 80-90/g, frase_quem);
+}
+
+// ─── CIÊNCIA DE INSTALAÇÃO BIOGRÁFICA (substitui theta pra raiz biografica) ──
+const CIENCIA_BIO_AMIGDALA = {
+  1: "Quando algo muito forte acontece — uma falência, uma traição, uma perda, um diagnóstico — o cérebro entra em modo de emergência. Nesse modo, a parte que grava memórias com EMOÇÃO fica hiperativada. E a parte que organiza, que coloca em sequência, que transforma em história, DESLIGA. O resultado: o evento não ficou como lembrança que você conta. Ficou como sensação que você VIVE. Como se ainda estivesse acontecendo.",
+  2: "Durante um evento traumático, a amígdala inunda o cérebro com norepinefrina e cortisol, criando memórias molecularmente mais fortes que as normais. Ao mesmo tempo, o hipocampo e a área de Broca — responsáveis por contexto temporal e linguagem — são suprimidos. O evento não foi processado como narrativa. Foi gravado como sensação. É por isso que você SABE o que aconteceu mas SENTE como se ainda estivesse acontecendo.",
+  3: "McGaugh (UC Irvine) demonstrou que a amígdala basolateral funciona como hub de modulação de memória. Durante trauma, norepinefrina atinge 300% do basal (McIntyre et al., 2002), enquanto o hipocampo e a área de Broca são suprimidos. Rauch, van der Kolk e Fisler (Archives of General Psychiatry, 1996) confirmaram via PET: a área de Broca desativa durante recall traumático — o que van der Kolk chamou de 'terror sem palavras.' A memória traumática é codificada sem estrutura narrativa, temporal ou verbal.",
+};
+const CIENCIA_BIO_MEMORIA_DUAL = {
+  1: "E a ciência descobriu que existem DOIS tipos de memória operando ao mesmo tempo. Um tipo é a memória que você conta — tem começo, meio e fim, e você sabe que é do passado. O outro tipo é a memória que o corpo guarda — sem palavras, sem sequência, sem noção de tempo. No trauma, a primeira fica fraca e a segunda fica forte. É por isso que você pode contar a história inteira e mesmo assim sentir o corpo reagir como se fosse agora.",
+  2: "A ciência chama de memória dual: existe uma memória verbal, que você consegue contar e colocar no passado, e uma memória sensorial, que o corpo guarda sem palavras e sem marcação de tempo. No trauma, a memória verbal fica fragmentada enquanto a sensorial fica amplificada. É por isso que contar a história não resolve — a parte que dói não está na história. Está no corpo.",
+  3: "Brewin (Psychological Review, 1996) distingue dois sistemas paralelos: Memórias Verbalmente Acessíveis (hipocampais, editáveis, temporalmente marcadas) e Memórias Sensorialmente Acessíveis (amigdalares, automáticas, experimentadas com qualidade de 'agora'). Hellawell e Brewin (2004) confirmaram empiricamente: segmentos de flashback usam presente do indicativo e detalhes perceptuais, enquanto memória ordinária usa passado e emoções secundárias. São sistemas independentes — resolver o verbal não alcança o sensorial.",
+};
+const CIENCIA_BIO_FUSAO = {
+  1: "E aconteceu algo que talvez você nunca tenha percebido: o evento virou quem você É. Não ficou como algo que aconteceu COM você. Virou VOCÊ. 'Sou divorciada.' 'Sou falido.' 'Sou alguém que não tem sorte.' A dor se fundiu com a identidade. E largar essa identidade parece trair a experiência — parece fingir que não aconteceu.",
+  2: "Pesquisadores descobriram que eventos traumáticos se tornam o PONTO CENTRAL da identidade — a lente através da qual toda experiência é interpretada. A psicologia chama de centralidade do evento: o trauma vira referência, ponto de virada e componente identitário ao mesmo tempo. Quanto mais central o evento se torna, mais a pessoa se define por ele.",
+  3: "Berntsen e Rubin (Behaviour Research & Therapy, 2006) demonstraram via Centrality of Event Scale que trauma se integra à identidade em 3 dimensões: referência cognitiva, ponto de virada narrativo e componente identitário. CES correlaciona .38 com severidade de PTSD. Janoff-Bulman (1992) complementa: trauma destrói 3 pressupostos tácitos — benevolência do mundo, previsibilidade e valor próprio. A antiga identidade, construída sobre esses pressupostos, deixa de ser viável.",
+};
+
+// ─── S3 ESPELHOS PERSONALIZADOS ─────────────────────────────────
+// Templates que usam variáveis da pessoa pra gerar espelho após cada card científico
+
+const CODIGOS_RAIZ = {
+  familiar_financeira: "dinheiro = tensão",
+  familiar_relacional: "relação = risco",
+  familiar_identidade: "eu não sou suficiente",
+  preverbal: "o mundo não é seguro",
+  religiosa: "prosperar é perigoso pra minha alma",
+  sistemica: "não é pra alguém como eu",
+  biografica: "tentar = sofrer",
+};
+const MANIFESTOS_PADRAO = {
+  repetidor: "você começa, avança, e para. De novo e de novo",
+  sabotador: "no momento em que começa a dar certo, algo dentro de você puxa o freio",
+  esgotado: "você faz tudo certo e o resultado não vem",
+  comparador: "a comparação te paralisa em vez de motivar",
+  anestesiado: "os dias passam e você não sente mais nada",
+  paralisado: "você sabe o que fazer mas o corpo não acompanha",
+};
+const SOMA_ESTADOS = { A:{nome:"nervosismo",art:"o"},B:{nome:"frustração",art:"a"},C:{nome:"cansaço",art:"o"},D:{nome:"desesperança",art:"a"},E:{nome:"culpa",art:"a"},F:null };
+
+function gerarEspelhoPorteiro(raiz, padrao, sup, answers) {
+  const codigo = CODIGOS_RAIZ[raiz];
+  const sup_lower = SUPERFICIES.find(s=>s.id===sup)?.label?.split("—")[0]?.trim()?.toLowerCase()||sup;
+  if (raiz === "biografica") {
+    return `No seu caso, o porteiro protege a identidade que o evento construiu. A lei que se gravou — "${codigo}" — é tratada pelo cérebro como verdade absoluta. Toda vez que uma oportunidade aparece na área de ${sup_lower}, o porteiro compara com essa lei. Se contradiz, BLOQUEIA. Você nem chega a decidir conscientemente. A informação morre antes de virar ação.`;
+  }
+  if (raiz === "preverbal") {
+    return `No seu caso, o porteiro não protege uma frase. Protege uma SENSAÇÃO sem nome: "${codigo}." Por isso é tão confuso — você não consegue apontar de onde vem. Mas toda vez que algo na área de ${sup_lower} exige que você se mova, o porteiro ativa uma tensão no corpo e BLOQUEIA. A decisão nunca chega à mente consciente.`;
+  }
+  return `No seu caso, o porteiro protege a lei que diz: "${codigo}." Toda vez que você tenta avançar na área de ${sup_lower}, o porteiro compara a ação nova com o código antigo. Se contradiz, BLOQUEIA. Você sente a motivação nascer — e em horas ou dias, ela evapora. Não é falta de disciplina. É o porteiro cortando na porta.`;
+}
+
+function gerarEspelhoCorpo(raiz, padrao, sup, answers) {
+  const somaObj = SOMA_ESTADOS[answers.P_SOMA];
+  const soma = somaObj ? somaObj.nome : null;
+  const somaArt = somaObj ? somaObj.art : "o";
+  const sup_lower = SUPERFICIES.find(s=>s.id===sup)?.label?.split("—")[0]?.trim()?.toLowerCase()||sup;
+  const somaFrase = soma ? `${somaArt.charAt(0).toUpperCase()+somaArt.slice(1)} ${soma} que você sente quando pensa em ${sup_lower} — é essa química. É o corpo no estado que ele reconhece como "normal."` : "";
+  if (raiz === "biografica") {
+    return `O seu corpo se recalibrou depois do que viveu. O estado de alerta, de espera pelo próximo golpe, virou o novo "normal." ${somaFrase} Quando começa a se sentir diferente — mais leve, mais segur${answers.GENERO==="F"?"a":"o"} — o corpo ESTRANHA. Porque segurança não é a química que ele conhece. E te puxa de volta pro estado de vigilância. Não é fraqueza. É vício hormonal.`;
+  }
+  const estados_raiz = {
+    familiar_financeira: "tensão financeira",
+    familiar_relacional: "guarda erguida nos relacionamentos",
+    familiar_identidade: "dúvida sobre o próprio valor",
+    preverbal: "alerta difuso, sem motivo aparente",
+    religiosa: "culpa",
+    sistemica: "contenção — ficar no lugar que o sistema validou",
+  };
+  const _idCorpo = answers.Q_IDADE || "35-44";
+  const _tempoCorpo = ["55-64","65+"].includes(_idCorpo) ? "Depois de décadas" : ["<18","18-24","25-34"].includes(_idCorpo) ? "Mesmo em poucos anos" : "Depois de anos";
+  return `${_tempoCorpo} vivendo no estado de ${estados_raiz[raiz]||"tensão"}, o seu corpo se acostumou. ${somaFrase} Quando começa a se sentir diferente — mais leve, mais livre — o corpo ESTRANHA. Não reconhece. E te puxa de volta pro estado que conhece. Não é fraqueza. É vício hormonal — o corpo literalmente resiste à mudança porque confunde "diferente" com "perigoso."`;
+}
+
+function gerarEspelhoFrequencia(raiz, padrao, sup, answers) {
+  const ident = BLOCOS_IDENTIDADE[raiz];
+  const sup_lower = SUPERFICIES.find(s=>s.id===sup)?.label?.split("—")[0]?.trim()?.toLowerCase()||sup;
+  const padrao_nome = NOMES_PADRAO[padrao];
+  return `A identidade que a interferência construiu — ${ident?.eu_sou||""} — emite numa frequência. E a realidade responde na mesma sintonia. Na área de ${sup_lower}, o resultado visível é ${padrao_nome}: ${MANIFESTOS_PADRAO[padrao]}. É por isso que, mesmo quando você faz tudo certo, a realidade PARECE não responder. Ela está respondendo — à frequência antiga. Enquanto a identidade emitir nessa frequência, a realidade vai continuar devolvendo o mesmo resultado. Isso é o que chamamos de REGRESSÃO — o efeito mais visível da interferência ativa.`;
+}
+
+function gerarIntroPorteiro(raiz, p8) {
+  const avanc = ["D","E"].includes(p8||"C");
+  if (raiz === "biografica") {
+    if (avanc) return "Você já sabe que existe algo operando por baixo da consciência. No seu caso, o evento criou uma estrutura no subconsciente — a Rede Neural Padrão — que protege a identidade que se formou DEPOIS do que viveu. E ela protege com a mesma força que protegeria uma identidade de infância.";
+    return "Tudo que você viveu — o evento, a dor, a marca que ficou — criou uma estrutura no seu subconsciente. Essa estrutura funciona como um guardião que protege a identidade que o evento construiu. A ciência descobriu essa estrutura e chamou de Rede Neural Padrão. Ela não diferencia entre uma identidade construída na infância e uma identidade forjada por trauma na vida adulta. Protege ambas com a mesma força.";
+  }
+  if (avanc) return "Você já entende que existe um mecanismo. Já estudou, já sentiu, já sabe que algo opera por baixo. O que talvez não saiba é COMO esse mecanismo atua no SEU caso específico. A ciência chama de Rede Neural Padrão — e ela protege ativamente a identidade que se formou na sua infância, mesmo que essa identidade te prejudique.";
+  return "Tudo que entrou no seu subconsciente durante a infância — as frases, os silêncios, os modelos — criou uma estrutura. Essa estrutura funciona como um guardião de tudo aquilo que você absorveu como verdade. A ciência descobriu essa estrutura e chamou de Rede Neural Padrão. Ela se formou entre os 6 e 12 anos e a partir daí passou a proteger aquilo que você acredita ser — mesmo que te prejudique.";
+}
+const CIENCIA_PORTEIRO = {
+  1: `Na prática, funciona como um porteiro. O cérebro criou uma estrutura que protege aquilo que você acredita ser — mesmo que te prejudique. A ciência descobriu essa rede e chamou de Rede Neural Padrão. Ela se forma entre os 6 e 12 anos e a partir daí funciona como guardiã permanente da sua identidade.
+
+Tudo que você tenta aprender, fazer ou mudar passa pelo porteiro antes de virar ação. Ele compara a informação nova com o código antigo. Se a informação nova diz "você pode prosperar" mas o código diz "dinheiro é tensão," o porteiro barra. A informação morre na porta. Você se motiva, e três dias depois volta pro mesmo lugar. Não é falta de disciplina. É o porteiro fazendo o trabalho dele.
+
+E pesquisadores descobriram algo assustador: quando alguém tenta mudar uma crença profunda, essa rede ativa uma resposta de DEFESA — como se a identidade estivesse sendo atacada fisicamente. O cérebro não diferencia entre uma ameaça real e uma ameaça à identidade.`,
+  2: `Na prática, funciona como um porteiro. A neurociência chama essa estrutura de Rede Neural Padrão — ela se forma entre os 6 e 12 anos e a partir daí protege ativamente a identidade. Tudo que você tenta aprender, fazer ou mudar passa por ela antes de virar ação.
+
+Você se motiva, e três dias depois volta pro mesmo lugar. Não é falta de disciplina. É a Rede Neural Padrão fazendo o trabalho dela. Pesquisadores mostraram que quando as crenças de uma pessoa são desafiadas, essa rede ativa uma resposta de DEFESA — como se a identidade estivesse sendo atacada fisicamente.`,
+  3: `Na prática, funciona como um porteiro. A neurociência identificou essa estrutura como a Rede Neural Padrão (Default Mode Network — Raichle, PNAS, 2001) — ela se consolida entre 6-12 anos e opera como guardiã permanente dos paradigmas identitários.
+
+Kaplan, Gimbel e Harris (Scientific Reports, 2016) demonstraram que desafiar crenças identitárias ativa resposta amigdalar equivalente a ameaça física — o cérebro não diferencia entre ataque real e contradição do paradigma. A motivação evapora em 72 horas porque o porteiro reverte o sistema ao estado-base.`,
+};
+const CIENCIA_CORPO = {
+  1: `Depois de anos vivendo no mesmo estado emocional — medo, escassez, culpa, o que for — o corpo VICIOU nessa química. O corpo produz substâncias de estresse o tempo todo: cortisol, adrenalina. E quando isso dura anos, o corpo se acostuma. Interpreta esse coquetel como "normal."
+
+Quando você começa a se sentir diferente — mais leve, mais livre — o corpo ESTRANHA. Não reconhece. E te puxa de volta pro estado que conhece. Não é fraqueza. É química. O corpo literalmente resiste à mudança porque confunde "diferente" com "perigoso."`,
+  2: `Depois de anos vivendo no mesmo estado emocional, o corpo VICIOU nessa química. O estado crônico de interferência mantém o eixo HPA — hipotálamo-pituitária-adrenal — hiperativado: cortisol elevado, corpo em modo de alerta permanente. O corpo se habitua a esse coquetel e o interpreta como "normal."
+
+Quando você começa a se sentir diferente — mais leve, mais livre — o corpo ESTRANHA. Não reconhece. E te puxa de volta pro estado que conhece. Não é fraqueza. É química. Uma revisão sistemática publicada por Sanada et al. na Health Psychology Review em 2020 confirmou que esse estado crônico se autoperpetua — o corpo literalmente resiste à mudança.`,
+  3: `O estado crônico de interferência mantém o eixo HPA (hipotálamo-pituitária-adrenal) hiperativado: cortisol cronicamente elevado, sistema nervoso simpático em modo de alerta permanente. O corpo se habitua a esse coquetel hormonal e o interpreta como homeostase.
+
+Sanada et al. (Health Psychology Review, 2020) confirmaram via revisão sistemática que esse estado crônico se autoperpetua: o corpo resiste ativamente à mudança porque interpreta qualquer alteração do estado-base como ameaça.`,
+};
+const CIENCIA_FREQUENCIA = {
+  1: `A identidade não opera apenas em pensamentos e hormônios. Opera em FREQUÊNCIA.
+
+Tudo no universo opera em frequência — do som à luz à matéria. O que a neurociência descreve como padrão neural, a física descreve como frequência. E frequências iguais ressoam. A sua realidade não é aleatória. É o reflexo da frequência que a sua identidade emite.
+
+Quando a identidade opera na frequência de escassez, a realidade responde com escassez. Quando opera na frequência de medo, a realidade responde com ameaça. Não é pensamento positivo. É o princípio básico que a ciência descreve de formas diferentes dependendo da lente.
+
+Mudar a realidade sem mudar a frequência é como trocar a imagem no espelho sem mover o rosto. O reflexo sempre volta.`,
+  2: `A identidade não opera apenas em pensamentos e hormônios. Opera em FREQUÊNCIA.
+
+Tudo no universo opera em frequência — do som à luz à matéria. Frequências iguais ressoam. A sua realidade não é aleatória. É o reflexo da frequência que a sua identidade emite.
+
+Quando a identidade opera na frequência de escassez, a realidade responde com escassez. Quando opera na frequência de medo, a realidade responde com ameaça. Não é pensamento positivo. É o princípio básico que a ciência descreve de formas diferentes dependendo da lente: padrão neural, campo eletromagnético, frequência.
+
+Mudar a realidade sem mudar a frequência é como trocar a imagem no espelho sem mover o rosto. O reflexo sempre volta.`,
+  3: `A identidade não opera apenas em pensamentos e hormônios. Opera em FREQUÊNCIA.
+
+Tudo no universo opera em frequência — do som à luz à matéria. O que a neurociência descreve como padrão neural, a física descreve como frequência. E frequências iguais ressoam.
+
+A sua realidade não é aleatória. É o reflexo da frequência que a sua identidade emite. Mudar a realidade sem mudar a frequência é como trocar a imagem no espelho sem mover o rosto. O reflexo sempre volta.`,
+};
+
+// ─── CONTENT (same as v4.0 — abbreviated for space, full content preserved) ──
+function getFraseRevelacao(sup, raiz) {
+  const MAP = {
+    financeiro:{familiar_financeira:"O seu problema com dinheiro nunca foi sobre dinheiro. Foi sobre a frequência de tensão financeira que se gravou na sua casa.",familiar_relacional:"O seu problema com dinheiro não começou no dinheiro. Começou no modelo de relação com quem dividia a casa — e o dinheiro virou o campo de batalha.",familiar_identidade:"O seu problema com dinheiro não é falta de capacidade. É uma identidade que não se PERMITE ter.",preverbal:"O seu problema com dinheiro não começou na mente. Começou no corpo — antes das palavras, antes da memória. Uma tensão sem nome que se expressa na conta.",religiosa:"O seu problema com dinheiro nunca foi sobre dinheiro. Foi sobre a permissão espiritual que você nunca recebeu pra prosperar.",sistemica:"A sua trava financeira nunca foi sobre capacidade. Foi sobre o teto que o sistema instalou em você — e que você internalizou como realidade.",biografica:"O seu problema com dinheiro começou no dia em que tudo mudou. O evento reescreveu o que a sua identidade aceita ter."},
+    relacional:{familiar_financeira:"O que acontece nos seus relacionamentos tem uma raiz que você não imagina: a tensão financeira da sua infância moldou como você se conecta.",familiar_relacional:"O padrão que se repete nos seus relacionamentos é o mesmo que operava entre as pessoas que te criaram. Não é azar. É código.",familiar_identidade:"A dificuldade nos relacionamentos não é do outro. É de uma identidade que não se sente MERECEDORA de receber.",preverbal:"A dificuldade de se conectar não começou numa relação. Começou antes das palavras — no corpo, na primeira experiência de vínculo.",religiosa:"A dificuldade nos relacionamentos carrega uma camada espiritual: querer pra si gera culpa. E a culpa sabota a intimidade.",sistemica:"O sistema te ensinou quem você podia amar, como, e quanto podia esperar. O teto relacional não é seu — foi instalado.",biografica:"O que aconteceu mudou a forma como você se conecta. O evento reescreveu as regras de intimidade."},
+    familiar:{familiar_financeira:"A tensão familiar que você sente tem raiz financeira. O dinheiro era o campo de batalha — e a família o ringue.",familiar_relacional:"A dinâmica familiar que te sufoca é o reflexo do modelo que você absorveu. Não é a família de agora — é o código de antes.",familiar_identidade:"O conflito familiar não é sobre eles. É sobre a identidade que você construiu — que precisa da aprovação deles pra se sentir válida.",preverbal:"A tensão familiar que você sente opera numa camada mais profunda que qualquer briga. Vem de antes das palavras.",religiosa:"O peso familiar carrega uma camada espiritual: honrar pai e mãe virou aceitar dor. A interferência usa a obediência como escudo.",sistemica:"O papel que você ocupa na família não foi escolhido. Foi designado pelo sistema — e aceito sem questionar.",biografica:"O evento mudou a dinâmica familiar. E a identidade que se formou no 'depois' é a que ainda opera."},
+    carreira:{familiar_financeira:"A trava profissional começou na sua cozinha. O código financeiro da sua infância define o teto do que você se permite almejar no trabalho.",familiar_relacional:"A forma como você se relaciona no trabalho — com chefes, colegas, clientes — é reflexo do modelo relacional da infância.",familiar_identidade:"A trava na carreira não é falta de competência. É uma identidade que ouviu 'você não é capaz' tantas vezes que acreditou.",preverbal:"A paralisia profissional não vem de falta de preparo. Vem de uma tensão sem nome que antecede qualquer decisão.",religiosa:"A trava na carreira carrega uma camada espiritual: ambição é pecado. Querer mais é egoísmo. O código barra antes da ação.",sistemica:"A trava profissional é o teto que o sistema instalou: 'alguém como você' vai até aqui e não passa.",biografica:"O evento mudou a forma como você se vê profissionalmente. A identidade pós-evento define o teto."},
+    saude:{familiar_financeira:"O que o corpo expressa tem raiz no código financeiro. A tensão com dinheiro virou tensão no corpo — e se cronificou.",familiar_relacional:"O corpo carrega a dor dos relacionamentos. O que não foi dito virou sintoma. O que não foi resolvido virou doença.",familiar_identidade:"O corpo expressa o que a identidade não consegue dizer. O sintoma é a voz do código.",preverbal:"O corpo fala o que a mente não alcança. A tensão que não tem nome, não tem data, não tem frase — vive no corpo.",religiosa:"O corpo carrega a culpa que a mente racionalizou. O peso espiritual virou peso físico.",sistemica:"O corpo obedeceu o sistema por décadas. Sentou, calou, engoliu. E agora cobra.",biografica:"O corpo carrega a marca do evento. O que aconteceu não ficou só na memória — ficou nos tecidos."},
+    emocional:{familiar_financeira:"A ansiedade que você sente tem raiz financeira. A tensão com dinheiro virou tensão emocional crônica.",familiar_relacional:"A instabilidade emocional não é química pura. É o reflexo de um modelo relacional que ensinou: sentir é perigoso.",familiar_identidade:"O caos emocional não é quem você é. É o que a identidade aprendeu: que não é capaz, que não é suficiente.",preverbal:"A ansiedade que você sente não começou na mente. Começou no corpo — antes das palavras, antes da memória.",religiosa:"A turbulência emocional carrega culpa espiritual. Querer paz pra si parece egoísmo. E a culpa gera mais turbulência.",sistemica:"O desequilíbrio emocional não é fraqueza. É o sistema nervoso operando dentro dos limites que o sistema social definiu.",biografica:"O evento não afetou só a sua vida. Afetou o seu sistema nervoso. A turbulência emocional é a marca que ficou."},
+    espiritual:{familiar_financeira:"A desconexão espiritual tem raiz material. Quando dinheiro é tensão, até a fé se contamina.",familiar_relacional:"A desconexão espiritual carrega a marca relacional: se não pode confiar em pessoas, como confiar em algo maior?",familiar_identidade:"A desconexão espiritual vem de uma identidade que não se sente DIGNA de receber. Nem de Deus.",preverbal:"A desconexão espiritual opera numa camada anterior à religião. O corpo não reconhece segurança — nem a divina.",religiosa:"A desconexão espiritual é o resultado de uma fé construída sobre medo. Quando o medo é a base, a conexão real não acontece.",sistemica:"A desconexão espiritual vem de um sistema que ensinou que Deus é autoridade, não presença. Obedecer, não sentir.",biografica:"O evento abalou a fé. Não porque Deus falhou — mas porque a identidade que se formou depois não aceita receber."},
+  };
+  return (MAP[sup]||{})[raiz] || "A raiz do que você vive está num lugar que você nunca olhou.";
+}
+
+const EXPLICACAO_PADRAO = {
+  repetidor:"Você começa com energia. Dias depois, a motivação evapora. Recomeça. Para de novo. Não é falta de foco. É a identidade antiga interrompendo qualquer movimento que ultrapasse o que ela reconhece como \"seu.\" O ciclo se repete porque a identidade se repete.",
+  sabotador:"Quando as coisas começam a dar certo, algo dentro de você puxa o freio. Não por querer. A identidade antiga não reconhece aquele sucesso como \"seu\" e corrige o curso. Você constrói, avança, e no momento decisivo, faz algo que compromete o que construiu.",
+  esgotado:"Você faz mais do que a maioria. E o resultado não muda. Não é azar. Não é provação. É a identidade antiga devolvendo você pro estágio que ela reconhece como \"seu.\" A energia vai toda pra FORA. E o problema está DENTRO.",
+  comparador:"Você olha pro resultado dos outros e sente que deveria estar ali. Mas algo te mantém no lugar. Não é inveja. É a identidade usando a comparação como PROVA de que o código original está certo. A comparação não te motiva — te paralisa.",
+  anestesiado:"Os dias passam e parecem iguais. Não estão ruins. Mas não estão bons. Estão cinza. O sistema nervoso DESLIGOU. Depois de tanta tentativa sem resultado, o corpo decidiu que sentir é arriscado. E desativou.",
+  paralisado:"Você sabe exatamente o que precisa fazer. E não consegue dar o passo. O corpo trava antes da decisão. Não é preguiça. Não é falta de vontade. É o corpo ativando a defesa máxima: \"se eu me mover, algo ruim vai acontecer.\"",
+};
+
+const PADRAO_SUPERFICIE = { repetidor:{financeiro:"Você já começou a organizar suas finanças mais de uma vez. Já fez planilha, já cortou gastos, já prometeu que dessa vez seria diferente. Funciona por umas semanas. Depois a energia acaba, a planilha é esquecida e tudo volta ao ponto de partida.",relacional:"Você já entrou em relacionamentos com esperança de que seria diferente. No começo, parece que vai dar certo. E em algum momento, o padrão antigo volta. Com pessoas diferentes, o roteiro se repete.",familiar:"Você já tentou mudar a dinâmica com a sua família. Já decidiu que não ia mais se afetar. Funciona por um tempo. Depois uma ligação, um encontro, uma frase, e você volta pro mesmo papel de sempre.",carreira:"Você já começou projetos, cursos, empreendimentos com convicção. Os primeiros dias são de energia total. Depois a motivação evapora. Você abandona e começa outro.",saude:"Você já começou a cuidar do corpo mais vezes do que consegue contar. Dieta, academia, rotina. Funciona por semanas. Depois o velho hábito volta, o corpo volta, e a frustração volta junto.",emocional:"Você já sentiu que estava melhorando. Mais leve, mais focado(a), mais presente. E do nada, a ansiedade volta. O medo volta. Melhora, regride. Como se existisse um elástico que sempre te puxa de volta.",espiritual:"Você já sentiu conexão real com Deus. Momentos de paz, de clareza. E depois perdeu. O ciclo espiritual se repete porque o que te desconecta opera numa camada que a devoção sozinha não alcança."},sabotador:{financeiro:"Você já ganhou dinheiro que não esperava. Já teve meses bons. E na sequência, algo acontece: uma decisão impulsiva, um gasto desnecessário. O dinheiro vai embora quase tão rápido quanto chegou. Toda vez que ultrapassa um certo nível, algo dentro de você corrige.",relacional:"Você já teve um bom relacionamento nas mãos. E você encontrou uma forma de estragar. Não é que queria perder. É que algo disparou quando ultrapassou o limite do que a identidade reconhece como \"normal.\"",familiar:"Você já esteve num bom momento com a família. E de repente disse algo que não precisava. Não fez por maldade. Fez porque a paz familiar não cabe na identidade que foi construída por anos de conflito.",carreira:"Você já esteve perto de uma conquista profissional. E no momento decisivo, fez algo que comprometeu o resultado. A identidade ativando o freio de emergência quando o sucesso se aproxima demais.",saude:"Você já chegou num bom momento com o corpo. E sabotou. Parou a dieta do nada. Não é fraqueza. É a identidade recusando um corpo que não reconhece como \"seu.\"",emocional:"Você já esteve bem. Calmo(a), equilibrado(a). E sem motivo aparente, criou um problema. É como se a paz fosse desconfortável. Pra quem cresceu na turbulência, a calma é estranhamento.",espiritual:"Você já se sentiu perto de Deus. E fez algo que te afastou. É como se parte de você não se sentisse DIGNA daquela conexão."},esgotado:{financeiro:"Você já fez de tudo: trabalhou mais, cortou gastos, buscou renda extra. E mesmo assim, a situação financeira parece estar sempre no mesmo lugar. O cansaço de tentar sem resultado é pior que o problema em si.",relacional:"Você se dedica ao relacionamento. Faz mais do que a outra pessoa. E mesmo assim, sente que não é o suficiente. O esgotamento não vem de não tentar. Vem de tentar ao máximo e sentir que o máximo não basta.",familiar:"Você é quem segura a família. Quem resolve, quem apazigua. E quando precisa de apoio, não encontra. Você está cansado(a) de ser forte pra todo mundo.",carreira:"Você trabalha muito. Mais do que a maioria. E o reconhecimento não vem. Enquanto outros que fazem menos sobem mais rápido. É esforço indo na direção errada.",saude:"Você já tentou cuidar do corpo. E funciona um tempo. Mas a energia que exige é desproporcional. O corpo não responde ao esforço na mesma proporção.",emocional:"Você já tentou meditar, respirar, \"deixar ir.\" E funciona no momento. Mas a ansiedade volta. O esgotamento emocional não é falta de técnica. É excesso de técnica na camada errada.",espiritual:"Você ora, busca, se dedica. E mesmo assim, a conexão com Deus parece fraca. Não é falta de fé. É EXCESSO de esforço na frequência errada."},comparador:{financeiro:"Você olha pra quem ganha mais e pensa: \"por que eu não?\" Não é inveja. É a identidade usando a comparação como PROVA de que o código está certo: \"não é pra mim.\" A comparação não te motiva. Te paralisa.",relacional:"Você vê casais que parecem funcionar. E compara com o que você tem. Ou com o que não tem. A comparação ativa o código: \"eu não mereço isso.\"",familiar:"Você olha pra famílias que parecem unidas. E a distância entre o que vê e o que vive dói. A comparação ativa a vergonha e reforça o isolamento.",carreira:"Você vê colegas sendo promovidos. Gente mais nova chegando onde você queria estar. A comparação profissional é especialmente cruel porque parece OBJETIVA.",saude:"Você olha pra quem tem o corpo que queria. E se sente inferior. A comparação com o corpo dos outros ativa a vergonha do seu. Vergonha não motiva. Paralisa.",emocional:"Você olha pra pessoas equilibradas. E pensa: \"por que eu sou assim?\" A comparação emocional é a mais isolante — acontece em silêncio.",espiritual:"Você olha pra pessoas com fé inabalável. E se sente menos. A diferença não é fé. É interferência."},anestesiado:{financeiro:"Você olha pra sua situação financeira e não sente nada. Não sente medo, não sente urgência. Só indiferença. Não é conformismo. É anestesia. O sistema nervoso desligou.",relacional:"Você está num relacionamento e sente pouco. Ou está sem e não se importa. Não é que não quer amor. É que a expectativa de sentir algo se apagou.",familiar:"Você convive com a família por obrigação. Por dentro, não sente quase nada. A anestesia é o estágio final de quem já sentiu demais ali dentro.",carreira:"Você vai trabalhar, faz o que precisa, volta pra casa. Não sente vontade de crescer. \"Tanto faz.\" É um sistema nervoso que desligou a ambição.",saude:"Você sabe que deveria cuidar do corpo. Mas não sente a urgência. O corpo está no piloto automático.",emocional:"Os dias passam e parecem iguais. Não estão ruins. Mas não estão bons. Estão cinza. É como assistir sua própria vida com o volume no mínimo.",espiritual:"Você já acreditou com mais força. Mas isso se apagou. A anestesia espiritual é o resultado de uma fé cobrada com medo e culpa até o corpo desistir de buscar."},paralisado:{financeiro:"Você sabe o que precisa fazer. Já pensou, já planejou. Mas na hora de agir, trava. Não é falta de conhecimento. É o porteiro bloqueando a ação.",relacional:"Você sabe o que quer num relacionamento. Mas na hora de agir — sair, ficar, se abrir — trava. Não é comodismo. É paralisia.",familiar:"Você sabe o que precisaria dizer pra sua família. E não consegue. A palavra morre na garganta.",carreira:"Você tem ideias. Tem planos. Mas entre o plano e a ação existe um vão que não consegue atravessar.",saude:"Você sabe que precisa mudar. E fica parado(a). É que na hora de começar, algo trava.",emocional:"Você sente que precisa de ajuda. Mas não busca. Fica parado(a) com a dor, esperando que passe sozinha.",espiritual:"Você quer se reconectar com Deus. Mas trava. Não consegue orar com presença. A paralisia espiritual vem da culpa."}};
+
+
+// ═══ v8.0 — PADRAO_SUPERFICIE COMPLETO POR OCUPAÇÃO (294 variantes) ═══
+const PADRAO_SUP_OCUP = {
+  clt: {
+    repetidor:{financeiro:"Você já tentou reorganizar as finanças mais de uma vez. Cortou o cartão, fez planilha, separou o dinheiro do mês. Funciona umas semanas. Depois o salário entra e sai no mesmo ritmo de sempre.",relacional:"Você já entrou em relacionamentos com esperança. No começo parece diferente. Depois o mesmo padrão volta. O roteiro se repete com pessoas diferentes.",familiar:"Você já decidiu que não ia mais se afetar. Funciona um tempo. Depois uma frase, um encontro — e volta pro mesmo papel de sempre.",carreira:"Você já começou projetos no trabalho com convicção. Cursos, certificações, iniciativas. A energia evapora. E você volta pra mesma função, mesmo nível.",saude:"Você já começou a cuidar do corpo mais vezes do que consegue contar. Dieta, academia, rotina. Funciona semanas. Depois o velho hábito volta.",emocional:"Você já sentiu que estava melhorando. Mais leve, mais focado. E do nada, a ansiedade volta. O elástico puxa de volta.",espiritual:"Você já sentiu conexão real. Momentos de paz. E depois perdeu. O ciclo espiritual se repete."},
+    sabotador:{financeiro:"Você já teve meses bons. Dinheiro extra, bônus. E na sequência, uma decisão impulsiva. O dinheiro vai embora quase tão rápido quanto chegou.",relacional:"Você já teve um bom relacionamento nas mãos. E encontrou uma forma de estragar. Algo disparou quando ultrapassou o limite do que a identidade aceita.",carreira:"Você já esteve perto de uma promoção. E no momento decisivo, fez algo que comprometeu. O freio ativou.",emocional:"Você já esteve bem. Calmo, equilibrado. E sem motivo, criou um problema. Como se a paz fosse desconfortável."},
+    esgotado:{financeiro:"Você trabalha mais que a maioria dos colegas. E o resultado financeiro não acompanha. O salário não sobe na proporção do esforço.",relacional:"Você se dedica ao relacionamento. Faz mais do que a outra pessoa. E sente que não é suficiente.",familiar:"Você é quem segura a família. Quem resolve, quem apazigua. E quando precisa de apoio, não encontra.",carreira:"Você trabalha mais que a maioria. Chega cedo, sai tarde. E outros que fazem menos sobem mais rápido.",saude:"Você já tentou cuidar do corpo. A energia que exige é desproporcional. O corpo não responde ao esforço.",emocional:"Você já tentou meditar, respirar. Funciona no momento. Mas a ansiedade volta. O esgotamento emocional não é falta de técnica."},
+    comparador:{financeiro:"Você olha pra quem ganha mais e pensa: 'por que eu não?' Colegas na mesma empresa, mesmo cargo, vivendo outra realidade.",relacional:"Você vê casais que parecem funcionar. E compara com o que você tem. Ou com o que não tem.",carreira:"Você vê colegas sendo promovidos. Gente que entrou depois chegando onde você queria. A comparação profissional é cruel porque parece objetiva.",emocional:"Você olha pra pessoas equilibradas. E pensa: 'por que eu sou assim?' A comparação emocional é a mais isolante."},
+    anestesiado:{financeiro:"Você olha pra sua situação financeira e não sente nada. Nem medo, nem urgência. Só indiferença. O sistema desligou.",relacional:"Você está num relacionamento e sente pouco. Ou está sem e não se importa. A expectativa de sentir se apagou.",carreira:"Você vai trabalhar, faz o que precisa, volta pra casa. Não sente vontade de crescer. 'Tanto faz.'",emocional:"Os dias passam e parecem iguais. Não estão ruins. Mas não estão bons. Estão cinza."},
+    paralisado:{financeiro:"Você sabe o que precisa fazer. Já pensou, já planejou. Mas na hora de agir, trava. Não é falta de conhecimento.",relacional:"Você sabe o que quer num relacionamento. Mas na hora de agir — sair, ficar, se abrir — trava.",carreira:"Você tem ideias. Tem planos. Mas entre o plano e a ação existe um vão que não consegue atravessar.",emocional:"Você sente que precisa de ajuda. Mas não busca. Fica parado com a dor, esperando que passe sozinha."},
+  },
+  autonomo: {
+    repetidor:{financeiro:"Você já tentou mudar a abordagem do negócio mais de uma vez. Investiu em marketing, buscou novos clientes, mudou a precificação. Funciona por um tempo. Depois algo trava e o faturamento volta pro mesmo patamar.",relacional:"Você já entrou em relacionamentos com esperança. A correria de quem trabalha sozinho se soma ao desgaste. O padrão se repete.",familiar:"Você já tentou mudar a dinâmica familiar. Funciona por um tempo. Depois uma frase, um conflito, e volta pro mesmo papel.",carreira:"Você já tentou escalar, diversificar, mudar de área. A empolgação inicial é real. Depois evapora e você volta pra mesma rotina.",saude:"Você já começou a cuidar do corpo. Mas a rotina de quem não tem horário fixo sabota. Não é falta de disciplina.",emocional:"Você já sentiu que estava melhorando. E do nada, a ansiedade volta. A pressão de quem não tem rede amplifica cada recaída.",espiritual:"Você já sentiu conexão. Paz. E a correria de manter tudo funcionando dissolve em dias."},
+    sabotador:{financeiro:"O negócio começa a crescer — e você toma uma decisão que compromete o avanço. Não por incompetência. Porque ultrapassar o teto que a identidade aceita ativa o freio.",relacional:"Você já teve um bom relacionamento. E no momento que começou a dar certo, algo dentro de você puxou o freio.",carreira:"Você já esteve perto de fechar um grande cliente ou expandir. E no momento decisivo, recuou. Não é medo racional.",emocional:"Quando as coisas começam a equilibrar, algo dentro de você cria turbulência. Sem estrutura pra segurar, a sabotagem opera livre."},
+    esgotado:{financeiro:"Você trabalha mais do que qualquer empregado trabalharia. E o resultado financeiro não acompanha. O teto não é do mercado — é do código.",relacional:"Você se dedica ao máximo. Ao trabalho, ao relacionamento. E o retorno não é proporcional em nenhum dos dois.",carreira:"Você carrega tudo nas costas. Cada decisão, cada cliente, cada problema. A exaustão não vem do trabalho — vem de trabalhar contra um teto invisível.",saude:"Seu corpo paga o preço de não ter folga. A rotina sem rede consome o físico além do que deveria.",emocional:"A pressão de quem não tem rede é constante. Sem férias, sem equipe, sem respiro. O esgotamento é estrutural."},
+    comparador:{financeiro:"Você olha pra outros autônomos que cobram mais, que faturam mais, que parecem trabalhar menos. A comparação ativa o código: 'eles podem, eu não.'",carreira:"Colegas da mesma área com menos experiência crescendo mais rápido. A comparação de quem trabalha sozinho é cruel — porque não tem 'culpa da empresa.'",emocional:"Você olha pra quem parece equilibrado e pensa: eles não carregam o que eu carrego. A comparação isola."},
+    anestesiado:{financeiro:"Você olha pros números e não sente mais nada. O corpo parou de reagir à urgência financeira. Não é conformismo — é anestesia.",emocional:"Depois de tanto tentar sem resultado na proporção certa, o corpo desligou. Os dias parecem iguais.",carreira:"Você faz o mínimo. Atende os clientes que aparecem. Não busca mais. O motor desligou."},
+    paralisado:{financeiro:"Você sabe exatamente o que o negócio precisa pra crescer. E não faz. As oportunidades passam e você assiste.",relacional:"Você sabe o que quer. E na hora de agir, trava. Sem chefe pra cobrar, a paralisia opera livremente.",carreira:"Você tem o plano, a capacidade, a visão. E na hora de executar, congela."},
+  },
+  empresario: {
+    repetidor:{financeiro:"Você já começou uma iniciativa de crescimento no negócio. Investiu, planejou, contratou. Funciona por um tempo. Depois algo trava e o faturamento volta pro mesmo patamar.",relacional:"O padrão se repete no relacionamento da mesma forma que nos negócios. Começa bem, perde a energia, recomeça.",carreira:"Você já lançou projetos, abriu frentes, investiu em expansão. No começo, a energia é total. Depois evapora e o negócio volta pro mesmo patamar.",saude:"Você cuida do corpo como cuida da empresa — por surtos de energia. Funciona semanas. Depois a rotina vence.",emocional:"Você já sentiu que estava melhorando. E do nada, a ansiedade do negócio contamina tudo. O elástico puxa de volta.",espiritual:"Você já sentiu paz. E a próxima decisão do negócio dissolve tudo."},
+    sabotador:{financeiro:"O negócio começa a crescer — e você toma uma decisão que compromete. Não por burrice. Porque ultrapassar o teto que a identidade aceita ativa o freio de emergência.",relacional:"Quando o relacionamento estabiliza, algo dentro de você provoca conflito. Como se a estabilidade emocional ameaçasse a identidade.",carreira:"Você já esteve perto de um salto. Parceria, expansão, contrato grande. E no momento decisivo, algo comprometeu. A identidade corrige."},
+    esgotado:{financeiro:"Você trabalha mais do que qualquer funcionário seu. E o resultado financeiro não acompanha o esforço. O negócio cresce até um ponto — e estaciona.",relacional:"Você se entrega ao negócio e ao relacionamento. E em ambos, o retorno não corresponde ao investimento.",carreira:"Você carrega o negócio nas costas. Toma todas as decisões. E o retorno não é proporcional. A exaustão não vem do trabalho — vem de trabalhar contra um teto.",saude:"Seu corpo paga o preço do negócio. Sono, alimentação, exercício — tudo sacrificado. E o corpo cobra."},
+    comparador:{financeiro:"Você olha pra empresários que faturam mais com menos esforço. E a comparação ativa: 'o que eles têm que eu não tenho?'",carreira:"Concorrentes crescendo, expandindo. Com menos experiência. A comparação empresarial é a mais racional — e por isso a mais cruel."},
+    anestesiado:{financeiro:"O negócio funciona no automático. Você mantém, mas sem energia pra crescer. O motor desligou.",emocional:"A pressão do negócio anestesiou o resto. Relacionamentos, saúde, emoções — tudo no piloto automático."},
+    paralisado:{financeiro:"Você sabe exatamente o que o negócio precisa pra escalar. E não faz. Não é falta de conhecimento. É o porteiro travando antes da ação.",carreira:"As oportunidades aparecem. Você analisa, planeja. E congela na execução."},
+  },
+  aposentado: {
+    repetidor:{financeiro:"Você já tentou organizar as finanças da aposentadoria. Cortar gastos, planejar melhor, buscar uma renda extra. Funciona por um tempo. Depois volta pro mesmo patamar.",relacional:"Você já tentou melhorar o relacionamento. Funciona um tempo. Depois o padrão antigo volta. Mais forte depois de décadas.",familiar:"Você já tentou mudar a dinâmica familiar. Depois de décadas no mesmo papel, cada tentativa parece mais pesada que a anterior.",saude:"Você já começou a cuidar do corpo mais de uma vez. Caminhada, dieta, exames. Funciona meses. Depois a rotina dissolve.",emocional:"Você já sentiu que estava mais leve. E de repente, o vazio volta. A aposentadoria que deveria ser liberdade virou repetição.",espiritual:"Você já sentiu conexão real. E perdeu. O ciclo espiritual se repete — mais lento, mais pesado, com mais história acumulada."},
+    sabotador:{financeiro:"Quando algo bom começa a se formar, algo puxa o freio. Poupança que some numa decisão impulsiva. Como se a identidade dissesse: 'o melhor já passou.'",emocional:"Quando a paz chega, algo dentro de você cria turbulência. Como se descansar fosse errado depois de uma vida inteira trabalhando."},
+    esgotado:{financeiro:"Você deu tudo que podia durante décadas. E o resultado financeiro da aposentadoria não reflete o esforço de uma vida inteira. A sensação de injustiça é real.",relacional:"Você se dedicou a vida inteira. E agora que era pra colher, sente que não colheu na proporção. O cansaço acumulado é maior que qualquer esforço novo.",saude:"Décadas cuidando de todo mundo. Agora era pra ser seu momento. Mas o corpo cobra anos de negligência.",emocional:"Depois de décadas de esforço, a expectativa era descanso com dignidade. A realidade não acompanhou."},
+    comparador:{financeiro:"Você olha pra quem se aposentou e vive bem. Viagens, paz, projetos. E compara com a sua realidade. A diferença não é sorte.",relacional:"Casais da mesma geração que parecem felizes. Você compara e a distância dói.",emocional:"Outros da mesma idade parecem ter encontrado paz. Você ainda busca."},
+    anestesiado:{financeiro:"Olha pra conta e não sente mais nada. Deveria ser preocupação, mas é indiferença. O corpo desistiu de reagir.",emocional:"Os dias se parecem. Não estão ruins. Mas não estão bons. A aposentadoria trouxe tempo — mas o tempo vazio pesa mais que o tempo ocupado.",saude:"Você sabe que deveria cuidar do corpo. E não sente a urgência. Depois de décadas no automático, o corpo desligou a vontade."},
+    paralisado:{financeiro:"Você sabe que precisa fazer algo com o dinheiro. Investir, planejar, proteger. E não consegue dar o primeiro passo.",saude:"Você sabe que deveria cuidar do corpo AGORA. O tempo urge. E mesmo assim, trava.",emocional:"Você sabe o que precisa fazer. Tempo não falta mais. Mas entre saber e agir existe um vão que não fecha."},
+  },
+  desempregado: {
+    repetidor:{financeiro:"Você já tentou recomeçar mais de uma vez. Currículo novo, entrevistas, contatos. Funciona por uns dias. Depois a energia acaba e a busca congela.",relacional:"O ciclo se repete: o desgaste financeiro contamina o relacionamento. A tensão vira rotina.",carreira:"Você já começou cursos, qualificações, tentativas de mudar de área. A empolgação dos primeiros dias dissolve.",emocional:"Sem trabalho, o emocional oscila mais. Dias bons seguidos de dias em que o peso volta inteiro."},
+    sabotador:{financeiro:"Uma oportunidade aparece e algo dentro de você encontra um motivo pra não ir. Não é falta de vontade.",carreira:"Você recebe um convite, uma indicação. E na hora, algo sabota. A identidade não aceita o que vem."},
+    esgotado:{financeiro:"Você já fez de tudo: mandou currículo, buscou renda extra, pediu indicação. E nada muda. O cansaço não é do esforço — é de tentar sem resultado.",carreira:"Cada dia sem trabalho pesa mais. Não é preguiça — é exaustão de quem tenta e o mundo não responde.",emocional:"O esgotamento de quem busca sem encontrar é o mais silencioso. Ninguém vê o esforço que não deu resultado."},
+    comparador:{financeiro:"Todo mundo ao redor parece ter emprego, estabilidade. Você olha e sente que ficou pra trás. A comparação é constante.",carreira:"Colegas trabalhando, avançando. Você parado. A comparação profissional de quem está sem emprego é brutal."},
+    anestesiado:{financeiro:"Deveria ser desespero. Mas é indiferença. O corpo desistiu de reagir à urgência. Desligou o alarme.",emocional:"Os dias passam iguais. Sem trabalho, sem estrutura, sem motivo. Não é preguiça — é um sistema que desativou.",carreira:"Você olha as vagas e não sente nada. Nem esperança, nem medo. Piloto automático."},
+    paralisado:{financeiro:"Você sabe que precisa agir. Mandar currículo, fazer contatos, buscar alternativas. E não consegue. O corpo trava antes da ação.",carreira:"As vagas aparecem. Você vê a oportunidade. E congela. Não é falta de qualificação.",emocional:"Você sabe que precisa de ajuda. E não busca. O desemprego trava tudo — incluindo a capacidade de pedir."},
+  },
+  estudante: {
+    repetidor:{financeiro:"Você já tentou organizar suas finanças mais de uma vez. Funciona umas semanas. Depois volta pro mesmo padrão.",carreira:"Você já mudou de curso, de área, de plano. Começa com convicção. Meses depois, a dúvida volta.",emocional:"Você já sentiu que estava focado, no caminho certo. E do nada, a ansiedade volta. O medo do futuro dissolve a clareza."},
+    sabotador:{carreira:"Quando algo dá certo nos estudos, algo estraga. Uma procrastinação, um auto-boicote na hora da entrega.",emocional:"Quando está tudo bem, algo dentro de você cria turbulência. Como se a calma fosse perigosa."},
+    esgotado:{carreira:"Estudar, trabalhar, dar conta de tudo. E nada parece o suficiente. O esforço não é reconhecido pela realidade.",emocional:"A pressão de 'ter que dar certo' pesa mais do que deveria. A exaustão não é do estudo — é da cobrança interna."},
+    comparador:{carreira:"Colegas avançando, conseguindo estágio, tendo clareza. Você olha e sente que algo falta em VOCÊ. Não falta — está bloqueado.",emocional:"Outros da mesma idade parecem ter tudo resolvido. A comparação ativa a vergonha."},
+    anestesiado:{carreira:"O futuro deveria ser empolgante. Mas é vazio. A motivação que todo mundo parece ter simplesmente não chega.",emocional:"Os dias passam iguais. Aula, rotina, repetição. Sem energia pra nada além do mínimo."},
+    paralisado:{carreira:"Você sabe o que quer estudar, onde quer chegar. Mas na hora de agir, trava. O futuro parece promessa e ameaça ao mesmo tempo.",financeiro:"Você sabe que precisa resolver a parte financeira. E congela. A paralisia é pior que o problema."},
+  },
+  dolar: {
+    repetidor:{financeiro:"Você já tentou organizar o orçamento da casa. Cortar gastos, planejar. Funciona por um tempo. Depois a rotina engole e volta pro mesmo lugar.",relacional:"Você já tentou mudar a dinâmica do relacionamento. Funciona por um tempo. Depois o padrão volta — e a culpa por querer algo diferente também.",emocional:"Você já sentiu que estava mais leve. E de repente, o peso volta. Cuidar de todo mundo sem espaço pra si gera um ciclo que se repete."},
+    sabotador:{emocional:"Quando surge uma chance de fazer algo pra si — um curso, um projeto — algo estraga. A identidade não aceita que você priorize a si."},
+    esgotado:{financeiro:"Você administra a casa, cuida dos filhos, faz tudo funcionar. E quando olha pra situação financeira, sente que nada do que faz é reconhecido como valor.",relacional:"Você cuida de todo mundo. E quando precisa de cuidado, não encontra. O esgotamento de quem dá sem receber é o mais invisível.",emocional:"Dentro de casa, o trabalho nunca acaba. E ninguém vê como trabalho. A exaustão é real — mas a identidade diz que reclamar é egoísmo.",saude:"O corpo paga o preço de anos priorizando todo mundo menos você. Não é falta de tempo — é falta de permissão."},
+    comparador:{financeiro:"Você olha pra mulheres que trabalham, que têm independência. E sente que ficou pra trás.",emocional:"Outras mães parecem dar conta de tudo e ainda sobrar energia. Você não entende como. A comparação ativa culpa."},
+    anestesiado:{emocional:"Os dias se repetem. Casa, filhos, rotina. A vida parece ter encolhido. Não é conformismo — é anestesia.",financeiro:"Olha pros números da casa e não sente mais nada. Cansou de se preocupar."},
+    paralisado:{financeiro:"Você sabe que deveria buscar uma renda própria. E trava. A identidade diz que seu lugar é dentro de casa.",emocional:"Você sabe que quer algo pra si. E congela. Como se querer fosse errado."},
+  },
+};
+
+function getPadraoSuperficie(padrao, sup, ocup) {
+  const ocup_map = PADRAO_SUP_OCUP[ocup];
+  if (ocup_map && ocup_map[padrao]) {
+    if (ocup_map[padrao][sup]) return ocup_map[padrao][sup];
+    if (ocup_map[padrao]._default) return ocup_map[padrao]._default;
+  }
+  return PADRAO_SUPERFICIE[padrao]?.[sup] || "";
+}
+
+
+
+// ─── BLOCOS RAIZ S2 — v6.1 (narrativa expandida ~350 palavras/raiz) ────
+function gerarBlocoRaiz(raiz, answers, registro, conds) {
+  const a = answers; const B = [];
+  const getCond = (id) => (conds||[]).find(c=>c.id===id);
+  const addCond = (id) => { const c = getCond(id); if (!c) return; const txt = COND_TEXTOS[id]?.[c.nivel]; if (txt) B.push(txt); };
+  const idade = answers.Q_IDADE || "35-44";
+  const _p8 = answers.P8 || "C";
+  const _avancado = ["D","E"].includes(_p8);
+
+  // Helper: calibrar epigenética por idade
+  function epiAge(txt) {
+    const m65=["65+"].includes(idade),m55=["55-64"].includes(idade),m45=["45-54"].includes(idade),ad=["35-44"].includes(idade),jv=["25-34"].includes(idade);
+    let quem;
+    if(m65) quem="Você MESMO viveu a hiperinflação dos anos 80-90";
+    else if(m55) quem="Você viveu a hiperinflação dos anos 80-90 quando era jovem";
+    else if(m45) quem="Seus pais enfrentaram a hiperinflação dos anos 80-90 enquanto você era criança";
+    else if(ad) quem="Seus pais viveram a hiperinflação dos anos 80-90";
+    else if(jv) quem="Seus pais e avós viveram a hiperinflação dos anos 80-90";
+    else quem="Seus avós viveram a hiperinflação dos anos 80-90";
+    return txt.replace(/Seus avós viveram a hiperinflação dos anos 80-90/g, quem);
+  }
+
+  if (raiz === "familiar_financeira") {
+    B.push("Pensa comigo. Dentro da sua casa, quando você era criança, existia uma FREQUÊNCIA sobre dinheiro. Não precisava ser uma frase explícita. Às vezes era o tom de voz quando chegava uma conta. O silêncio pesado no fim do mês. A mãe escondendo compras do pai. O pai dizendo \"a gente não pode.\"");
+    B.push("__SCI_TRANS__");
+    B.push("Dos 2 aos 7 anos, o seu cérebro operava num estado que a neurociência chama de ondas theta. É o mesmo estado que adultos só acessam em hipnose profunda. Nesse estado, não existe filtro. A criança não ouve uma opinião sobre dinheiro. Ela ABSORVE um código de instalação direto no subconsciente. Sem questionar. Sem escolher.");
+    B.push("E o código que se instalou em você diz: DINHEIRO = TENSÃO. Ou dinheiro = conflito. Ou dinheiro = nunca suficiente. Cada família tem a sua versão, mas o mecanismo é o mesmo.");
+    addCond("P12");
+    addCond("P19");
+    addCond("P_NEW_FIN");
+    B.push("Tudo que você absorveu criou um molde. E esse molde se consolidou como verdade absoluta no seu subconsciente.");
+    B.push("É por isso que você pode ler 50 livros sobre finanças, fazer cursos, montar planilhas e continuar no mesmo lugar. O conhecimento entra pela mente consciente. Mas a estrutura que protege o código antigo opera no subconsciente. São camadas diferentes. E a camada subconsciente tem prioridade.");
+    B.push(epiAge("Além disso, seus avós viveram a hiperinflação dos anos 80-90. 85% de inflação ao mês. Estudos de epigenética mostram que traumas financeiros são transmitidos biologicamente por até 3 gerações. Você não herdou só as frases dos seus pais sobre dinheiro. Herdou a frequência de pânico financeiro deles, gravada no DNA, no sistema hormonal de estresse."));
+    B.push("Não é culpa dos seus pais. Eles carregavam o mesmo código que receberam dos pais deles. É uma corrente. A questão não é culpa. É CONSCIÊNCIA. Agora que você sabe que esse código existe, você é a primeira pessoa na sua linhagem que pode removê-lo.");
+
+  } else if (raiz === "familiar_relacional") {
+    B.push("A raiz do que você vive não começou com um parceiro que te decepcionou ou um relacionamento que deu errado. Começou muito antes. Na dinâmica entre as pessoas que te criaram.");
+    B.push("Dentro da sua casa, existia um CAMPO EMOCIONAL. Talvez fosse conflito aberto: gritos, brigas, portas batendo. Talvez fosse o oposto: silêncio. Distância. Duas pessoas que viviam juntas mas não se tocavam, não se olhavam, não se conectavam. Ou talvez fosse imprevisível. Dias bons seguidos de explosões sem aviso.");
+    B.push("__SCI_TRANS__");
+    B.push("Dos 2 aos 7 anos, o cérebro opera em theta. Um estado onde tudo que entra vira programação direta. Você não aprendeu a PENSAR sobre relacionamentos. Você ABSORVEU um modelo de como relações funcionam. E esse modelo se instalou no subconsciente como código: \"relação = risco,\" ou \"relação = dor,\" ou \"mostrar o que sinto = ser atacado.\"");
+    addCond("P16");
+    addCond("P18");
+    addCond("P_NEW_REL");
+    B.push("Tudo que você absorveu criou um molde. E esse molde se consolidou. A partir desse momento, tudo que contradiz o modelo instalado é filtrado antes de virar ação. Não por escolha. Por programação.");
+    B.push("É por isso que você pode SABER que merece algo melhor e não CONSEGUIR agir diferente. Quando um elogio chega, algo dentro de você bloqueia. Quando uma oportunidade de intimidade aparece, o corpo contrai. Porque intimidade, no modelo que você absorveu, precede dor.");
+    B.push("Não é culpa deles. Seus pais estavam operando com o código que RECEBERAM. A corrente vem de gerações. Mas agora que você consegue ver o código, agora que ele deixou de ser invisível, você tem a possibilidade de ser a pessoa que interrompe essa corrente.");
+
+  } else if (raiz === "familiar_identidade") {
+    B.push("A interferência mais silenciosa é a que ataca quem você ACREDITA SER. Não é sobre dinheiro. Não é sobre relacionamento. É sobre a permissão que você tem, ou não tem, de ser alguém.");
+    B.push("Dentro da sua casa, quando criança, existia uma mensagem sobre o seu VALOR. Podia vir em frases diretas: \"Quem você pensa que é?\", \"Não sonha alto demais\", \"Olha o seu irmão, por que você não é assim?\" Ou podia vir sem palavras: o olhar de desaprovação, a conquista que nunca era celebrada, o sonho que era recebido com silêncio.");
+    B.push("__SCI_TRANS__");
+    B.push("Dos 2 aos 7 anos, o cérebro opera num estado chamado theta. O mesmo que adultos acessam em hipnose profunda. Nesse estado, a criança não avalia se a mensagem é justa ou injusta. Ela simplesmente INSTALA. E o código que se instalou diz: \"EU NÃO SOU SUFICIENTE.\" Ou \"eu não sou capaz.\" Ou \"não é pra alguém como eu.\"");
+    addCond("P14");
+    addCond("P_NEW_ID");
+    B.push("Esse código virou a sua trilha mestra — o \"EU SOU\" a partir do qual tudo opera. Toda decisão, toda ação, toda oportunidade que aparece na sua vida passa por essa trilha antes de virar emoção e comportamento. Se a trilha diz \"eu não sou capaz,\" a oportunidade é bloqueada antes de virar ação. Você nem percebe que está acontecendo. Só percebe o resultado: \"eu não consigo,\" \"não sei por quê,\" \"deve ter algo errado comigo.\"");
+    B.push("É o que chamam de impostorismo. Mas não é uma síndrome. É um CÓDIGO instalado na infância que é defendido ativamente pelo subconsciente. Quando alguém te elogia, sente falso. Quando conquista algo, espera a punição. Quando tem a chance de crescer, encontra um motivo pra não ir.");
+    B.push("Seus pais fizeram o que sabiam. Estavam repetindo o código que receberam. Mas agora você pode ver de onde veio. E isso muda tudo.");
+
+  } else if (raiz === "preverbal") {
+    if (answers.Q_RELIGIAO === "ateu") {
+      B.push("A raiz do que você vive não está em frases que te disseram. Não está na religião. Não está em algo que você PENSA. Está em algo que aconteceu antes de você ter capacidade de entender palavras. E por isso é a mais difícil de acessar pela razão.");
+    } else {
+      B.push("A raiz do que você vive não está apenas em frases que te disseram. Pode ter uma camada religiosa, pode ter uma camada familiar — mas a interferência mais profunda opera ABAIXO de tudo isso. Está em algo que aconteceu antes de você ter capacidade de entender palavras. E por isso é a mais difícil de acessar pela razão.");
+    }
+    B.push("__SCI_TRANS__");
+    B.push("Nos primeiros 18 meses de vida, o cérebro opera em ondas delta, a frequência mais lenta. Nesse estado, a criança não entende linguagem. O que ela entende é PRESENÇA. Se o cuidador era responsivo (chorou, veio; precisou, atendeu), o sistema nervoso aprende: \"o mundo é seguro. Posso contar com alguém.\"");
+    B.push("Mas se o cuidador era inconsistente (às vezes vinha, às vezes não), ou emocionalmente distante, ou ausente, algo diferente se instala. O sistema nervoso da criança codifica uma regra que não é pensamento. É SENSAÇÃO. \"Não posso contar com ninguém.\" Ou \"preciso me garantir porque a qualquer momento posso ser abandonado.\" Ou \"quero me conectar mas conexão é perigoso.\"");
+    B.push("Essa instalação acontece no corpo, não na mente. Por isso é tão confusa: você não consegue explicar POR QUÊ sente o que sente. Não tem uma frase pra apontar, um evento pra narrar. É uma tensão que está lá. Difusa, sem nome, sem história.");
+    addCond("P25");
+    addCond("P26");
+    addCond("P27");
+    B.push("O que a torna especialmente resistente é que essa programação se consolidou como permanente. Crenças que vieram em palavras podem ser questionadas (\"meu pai dizia X, mas eu sei que não é verdade\"). A programação pré-verbal não é acessível pelo raciocínio. Ela opera abaixo da linguagem.");
+    B.push("Uma analogia: as outras fontes de interferência são como frequências parasitas no rádio. Você pode identificar e remover. A pré-verbal é o estado da ANTENA. Se a antena foi montada torta nos primeiros 18 meses, mesmo sinais limpos chegam distorcidos. Não adianta limpar as frequências se a antena precisa ser recalibrada.");
+    B.push("É por isso que, na vida adulta, coisas boas chegam e você não consegue receber. Alguém te oferece ajuda e você recusa. Um relacionamento é bom e você estranha. Porque \"bom\" não é a frequência que o corpo reconhece como normal.");
+
+  } else if (raiz === "religiosa") {
+    B.push("Pensa comigo. Você cresceu ouvindo versões de uma mesma mensagem: querer demais é pecado. Rico não vai pro céu. Sofrer é provação. Cuidar de si é egoísmo. Questionar é falta de fé.");
+    B.push("Essas frases não chegaram como opinião de alguém. Chegaram como a VONTADE DE DEUS. O pastor, o padre, o líder espiritual. Pra uma criança, essas figuras estão ACIMA dos pais. São representantes diretos de Deus. E quando a consequência de desobedecer não é uma bronca, mas a condenação eterna, a carga emocional é a mais pesada que existe.");
+    B.push("__SCI_TRANS__");
+    B.push("Dos 2 aos 7 anos, o cérebro opera num estado que a neurociência chama de theta. O mesmo que adultos só acessam em hipnose profunda. Nesse estado, não existe filtro. Não existe \"será que é verdade?\" Tudo que entra vira programação direta no subconsciente. A frase do pastor não é uma frase. É um código de instalação.");
+    B.push("E o código que se instalou é sutil. Não diz \"não prospere\" — diz \"quem é você pra querer isso?\" Vem como dúvida de merecimento. Como se querer algo pra si — sem ser pra ajudar alguém, sem ser \"pra Deus\" — fosse errado. Como se a prosperidade precisasse de uma JUSTIFICATIVA espiritual pra ser permitida.");
+    addCond("P13");
+    addCond("P15");
+    addCond("P17");
+    B.push("E aqui está o mais traiçoeiro: esse código se disfarça de fé. A pessoa acha que está sendo fiel a Deus quando, na verdade, está obedecendo a uma interpretação distorcida que foi instalada por interferência. A fé real liberta. A interferência religiosa aprisiona usando a linguagem da fé.");
+    B.push("E esse código é defendido com intensidade máxima. Porque não é \"uma crença.\" É uma crença ligada ao MEDO DE DEUS, que está ligada ao medo da MORTE. Não existe ameaça maior. E a defesa escala proporcionalmente à ameaça percebida.");
+    B.push("É por isso que a pessoa pode sair da igreja, mudar de religião, até se declarar sem religião e CONTINUAR presa no mesmo padrão. Porque saiu do ambiente, mas o código continua instalado. \"Saiu da religião, mas a religião não saiu dela.\"");
+    B.push("Importante: isso não é culpa de quem te ensinou. Eles também acreditavam. Também viviam na mesma interferência. A corrente vem de gerações. E Deus não te condena por questionar o que te foi dito SOBRE Ele.");
+
+  } else if (raiz === "sistemica") {
+    B.push("Existe um tipo de interferência que não vem de nenhuma pessoa específica. Não foi seu pai, nem sua mãe, nem o pastor. É o AR QUE VOCÊ RESPIRA. Tão onipresente que parece normal. É a interferência do sistema.");
+    addCond("P20");
+    addCond("P21");
+    addCond("P22");
+    const _idadeQ = answers.Q_IDADE || "35-44";
+    const _maduro55 = ["55-64","65+"].includes(_idadeQ);
+    const _jovem = ["<18","18-24","25-34"].includes(_idadeQ);
+    if (_maduro55) {
+      B.push("Uma vida inteira dentro de um sistema que definiu o que alguém como você poderia almejar. O bairro, a escola, a cultura, as décadas de um mundo que não foi feito pra quem pensa diferente. Depois de tanto tempo operando dentro desses limites, o código se tornou invisível — parece que é A REALIDADE. Mas não é. É interferência sistêmica disfarçada de normalidade.");
+    } else if (_jovem) {
+      B.push("A escola te ensinou durante anos a sentar, calar e obedecer. A memorizar, não a pensar. A esperar instrução, não a criar direção. Esse código ainda é recente — e por isso é mais fácil de acessar. Mas enquanto estiver ativo, você vai continuar esperando permissão pra agir.");
+    } else {
+      B.push("A escola te ensinou durante 12 anos a sentar, calar e obedecer. A memorizar, não a pensar. A esperar instrução, não a criar direção. Depois de 12 anos nesse sistema, o código que se instalou diz: \"eu preciso de PERMISSÃO pra agir.\" É por isso que você compra cursos e não executa. Está esperando que alguém te diga exatamente o que fazer, porque nunca te ensinaram a se autodeterminar.");
+    }
+    B.push("A cultura te ensinou o que \"alguém como você\" pode ou não pode almejar. O bairro onde cresceu, a escola que frequentou, as referências que teve ou não teve. Tudo isso construiu um TETO DE VIDRO INTERNO. Não é falta de capacidade. É falta de permissão interna pra ir além do que o ambiente validava como possível.");
+    B.push("__SCI_TRANS__");
+    B.push(epiAge("E existe uma camada mais profunda: o trauma coletivo. Seus avós viveram a hiperinflação dos anos 80-90. 85% de inflação ao mês. Estudos de epigenética mostram que esse tipo de trauma não fica só na memória. É transmitido biologicamente por gerações. A sensação de que \"a qualquer momento o chão pode ceder\" não é paranoia. É uma herança biológica de um país que perdeu o valor do dinheiro da noite pro dia, repetidas vezes."));
+    B.push("E tem o ambiente PRESENTE: as pessoas ao seu redor, o parceiro que não acredita em você, os amigos que te puxam pra baixo, a cultura de \"não se meta,\" de \"isso é pra rico,\" de \"contentamento é virtude.\" Tudo isso TRANSMITE uma frequência que seu sistema nervoso absorve e traduz em comportamento. Mesmo quando você discorda racionalmente.");
+    B.push("A interferência foi alimentada por todas essas camadas. E como elas parecem \"o mundo real\" (e não uma crença pessoal), são as mais difíceis de questionar. A pessoa diz: \"não é interferência, é a realidade.\" E é exatamente isso que a interferência sistêmica faz: se disfarça de realidade.");
+
+  } else if (raiz === "biografica") {
+    const ev=answers.P23_EVENTO||[];const p23_alto=ev.some(v=>["falencia","divorcio","perda","diagnostico","violencia"].includes(v));
+    if (p23_alto) {
+      B.push("A interferência que opera em você não veio da infância. Não veio da religião. Não veio do sistema. Veio de algo que ACONTECEU com você — um evento que partiu a sua história em antes e depois.");
+      B.push("Existe um evento que dividiu a sua vida em duas partes. Antes dele, você era uma pessoa. Depois dele, virou outra. E a identidade que se formou no \"depois\" é a que opera até hoje.");
+    } else {
+      B.push("A interferência que opera em você não veio de uma única fonte. Não foi uma frase da infância. Não foi uma doutrina. Foi algo mais difuso — um ACÚMULO que foi corroendo, ano após ano, até que algo dentro de você parou.");
+      B.push("Não houve um terremoto único. Foi erosão. Anos tentando, investindo, acreditando. E a realidade devolvendo o mesmo resultado. Vez após vez. Até que o corpo decidiu: não adianta mais.");
+    }
+    B.push("__SCI_TRANS__");
+    B.push("A psicologia tem um nome pra isso: desamparo aprendido. Martin Seligman demonstrou nos anos 60 que organismos expostos a falhas repetidas e incontroláveis desenvolvem uma expectativa de que NADA do que façam vai mudar o resultado. E param de tentar. Mesmo quando as condições mudam. Mesmo quando a porta se abre. Porque o sistema nervoso codificou uma regra: \"tentar = sofrer.\"");
+    B.push("Mas o mecanismo vai além do desamparo. Depois do trauma ou do acúmulo, muitas pessoas constroem uma NOVA IDENTIDADE ao redor da dor. \"Sou divorciada,\" não \"passei por um divórcio.\" \"Sou falido,\" não \"tive uma falência.\" \"Sou ansioso,\" como identidade fixa, não como estado temporário. A pessoa se FUNDE com o sofrimento.");
+    { const c24 = getCond("P24"); if(c24 && c24.nivel !== "baixo") B.push("E as suas respostas confirmam: o evento virou quem você É. A dor se fundiu com a identidade. Essa nova identidade, construída ao redor da dor, é protegida pelo subconsciente com a MESMA FORÇA que os códigos da infância. Não distingue entre uma crença instalada aos 5 anos e uma identidade construída aos 35. Protege ambas. E quando alguém tenta ajudar, a defesa ativa: \"você não entende, comigo é diferente.\""); }
+    { const c33 = getCond("P33"); if(c33 && c33.nivel !== "baixo") {
+      B.push("E as suas respostas mostram o resultado final: você parou de tentar. Não por preguiça. Porque o corpo aprendeu: \"tentar = sofrer.\"");
+    }}
+    B.push("O que torna a interferência biográfica especialmente traiçoeira é que, diferente das outras fontes, a pessoa SABE de onde veio. Pode narrar o evento, descrever a dor, localizar o momento. Mas saber de onde veio não dissolve a interferência que se instalou. Porque ela agora opera no subconsciente, alimentada pelo vício hormonal do estado de alerta permanente.");
+    B.push("A dor que você viveu é real. Mas a identidade que você construiu ao redor dela não precisa ser permanente.");
+  }
+  return B;
+}
+
+// ─── REMAINING CONTENT (S4, depoimentos, etc.) ─────────────────
+const BLOCOS_IDENTIDADE = { familiar_financeira:{eu_sou:'"Eu não sou uma pessoa que pode ter."',texto:'Existe um teto invisível no seu subconsciente que define quanto você ACEITA acumular. Quando ultrapassa, o porteiro corrige. Não é azar. É a identidade reajustando a realidade pro nível que reconhece como "seu."',highlight:'Enquanto o código disser "dinheiro = tensão," o teto permanece.'},familiar_relacional:{eu_sou:'"Pra mim, relação é risco."',texto:'Por fora, forte e independente. Por dentro, uma guarda que nunca baixa. A intimidade real aciona o código: "se eu me abrir, vou me machucar."',highlight:'A identidade não aceita um modelo de relação que nunca viu funcionar.'},familiar_identidade:{eu_sou:'"Eu não sou o tipo de pessoa que consegue."',texto:'Diploma, experiência, inteligência — nada chega ao corpo como VERDADE. Elogios parecem mentira. Conquistas parecem temporárias.',highlight:'O que chamam de impostorismo não é doença. É um código que a identidade defende como verdade.'},preverbal:{eu_sou:'"O mundo não é seguro pra mim."',texto:'Essa sensação opera em tudo. Na forma como você recebe ajuda. Na tensão que aparece sem motivo quando as coisas estão calmas.',highlight:'Coisas boas chegam e você não consegue receber. Porque "bom" não é a frequência que o corpo reconhece.'},religiosa:{eu_sou:'"Eu não posso prosperar sem pagar um preço espiritual."',texto:'Querer mais gera culpa. Ter mais gera medo. O código religioso fundiu prosperidade com pecado e sofrimento com virtude.',highlight:'A interferência usa a linguagem de Deus. Mas não é Deus. É código.'},sistemica:{eu_sou:'"Não é pra alguém como eu."',texto:'A conclusão que o subconsciente tirou de 12 anos de escola que ensinou obediência, de um bairro que definia seu teto.',highlight:'Você limita suas ambições ao que o sistema validou. E chama isso de "ser realista."'},biografica:{eu_sou:'"Eu sou o que aconteceu comigo."',texto:'O evento se fundiu com quem você é. Essa fusão é a interferência mais resistente — defender a identidade parece defender a memória da dor.',highlight:'O evento foi real. A identidade que ele criou é opcional.'}};
+const SOMA_TEXTOS = { A:{texto:"Quando pensa em {sup}, sente nervosismo. O corpo se prepara pra um perigo que não existe. Mas que a interferência insiste que está chegando."},B:{texto:"Quando pensa em {sup}, sente frustração. Frustração é o som que a interferência faz quando tenta se mover e ela segura."},C:{texto:"Quando pensa em {sup}, sente cansaço. Esse peso é o custo energético de manter duas frequências opostas ao mesmo tempo."},D:{texto:"Quando pensa em {sup}, sente desesperança. Quando o corpo desiste de reagir, ele desliga."},E:{texto:"Quando pensa em {sup}, sente culpa. Culpa ao querer algo pra si é um dos sinais mais claros de interferência ativa."},F:null};
+const FRASES_SECUNDARIO = { repetidor:"E junto com isso, existe um ciclo que se repete: você começa, avança e para. De novo e de novo.",sabotador:"E junto com isso, quando as coisas começam a dar certo, algo puxa o freio.",esgotado:"E junto com isso, um cansaço que não é do corpo. É de tentar sem ver resultado mudar.",comparador:"E junto com isso, a comparação reforça a sensação de que o problema é você.",anestesiado:"E junto com isso, uma parte de você já desligou. Não sente mais como antes.",paralisado:"E junto com isso, na hora de agir, algo trava. Sabe o que fazer. Mas o corpo não acompanha."};
+function getFechamento(sup, ocup) {
+  const FECH = {
+    clt:{financeiro:"Você não precisa de mais planilha. Precisa acessar o código que define quanto a sua identidade ACEITA manter. É esse código que vai ser acessado no dia 27.",relacional:"Você não precisa de mais conselhos sobre relacionamento. Precisa desligar o código que transforma intimidade em ameaça. É esse código que vai ser acessado no dia 27.",familiar:"Você não precisa perdoar mais uma vez. Precisa acessar o código que conecta seu valor à aprovação da família. É esse código que vai ser acessado no dia 27.",carreira:"Você não precisa de mais curso. Precisa desligar o código que transforma oportunidade em medo. É esse código que vai ser acessado no dia 27.",saude:"Você não precisa de mais dieta. Precisa acessar o que o corpo está EXPRESSANDO. É essa interferência que vai ser acessada no dia 27.",emocional:"Você não precisa controlar a ansiedade. Precisa desligar o que GERA a ansiedade. É isso que acontece no dia 27.",espiritual:"Você não precisa de mais fé. Precisa remover a interferência que se INSTALOU entre você e Deus. É isso que vai ser confrontado no dia 27."},
+    autonomo:{financeiro:"Você não precisa de mais estratégia de captação. Precisa acessar o código que define o TETO do quanto a sua identidade aceita faturar. É esse código que vai ser acessado no dia 27.",relacional:"Você não precisa de mais tempo pro relacionamento. Precisa remover o código que transforma intimidade em ameaça. É esse código que vai ser acessado no dia 27.",carreira:"Você não precisa de mais técnica. Precisa acessar o código que trava o crescimento antes de chegar no próximo nível. É esse código que vai ser acessado no dia 27.",saude:"Você não precisa de mais disciplina. Precisa acessar o que impede o corpo de responder ao esforço. É essa interferência que vai ser acessada no dia 27.",emocional:"Você não precisa de mais equilíbrio. Precisa desligar o que GERA o desequilíbrio. É isso que acontece no dia 27.",espiritual:"Você não precisa buscar mais. Precisa remover o que impede a conexão. É isso que vai ser confrontado no dia 27.",familiar:"Você não precisa mudar a família. Precisa acessar o código que define o seu papel nela. É esse código que vai ser acessado no dia 27."},
+    empresario:{financeiro:"Você não precisa de mais estratégia de negócio. Precisa acessar o código que define o TETO do quanto a sua identidade aceita faturar. É esse código que vai ser acessado no dia 27.",relacional:"Você não precisa de mais conselhos. Precisa remover o código que compete com o relacionamento por energia. É esse código que vai ser acessado no dia 27.",carreira:"Você não precisa de mais mentoria. Precisa acessar o código que trava a expansão. É esse código que vai ser acessado no dia 27.",saude:"Você não precisa de mais rotina. Precisa acessar o código que sacrifica o corpo pelo negócio. É essa interferência que vai ser acessada no dia 27.",emocional:"Você não precisa de mais controle. Precisa desligar a interferência que transforma liderança em solidão. É isso que acontece no dia 27.",espiritual:"Você não precisa de mais fé. Precisa remover o que transforma sucesso em culpa. É isso que vai ser confrontado no dia 27.",familiar:"Você não precisa equilibrar melhor. Precisa acessar o código que faz família e negócio competirem. É esse código que vai ser acessado no dia 27."},
+    aposentado:{financeiro:"Você não precisa de mais planejamento financeiro. Precisa acessar o código que define quanto a sua identidade ACEITA viver com dignidade. É esse código que vai ser acessado no dia 27.",relacional:"Você não precisa de mais paciência. Precisa remover o código que calcificou o padrão relacional ao longo de décadas. É esse código que vai ser acessado no dia 27.",saude:"Você não precisa de mais exames. Precisa acessar o que o corpo está EXPRESSANDO depois de décadas de interferência. É essa interferência que vai ser acessada no dia 27.",emocional:"Você não precisa aceitar. Precisa acessar o código que transformou aposentadoria em vazio. É isso que acontece no dia 27.",espiritual:"Você não precisa de mais devoção. Precisa remover a interferência que se instalou entre você e a paz que merece. É isso que vai ser confrontado no dia 27.",carreira:"Você não precisa provar mais nada. Precisa acessar o código que diz que seu valor acabou junto com o crachá. É esse código que vai ser acessado no dia 27.",familiar:"Você não precisa se conformar. Precisa acessar o código que definiu seu papel familiar há décadas. É esse código que vai ser acessado no dia 27."},
+    desempregado:{financeiro:"Você não precisa de mais currículo. Precisa acessar o código que define o tipo de oportunidade que a sua identidade ACEITA receber. É esse código que vai ser acessado no dia 27.",relacional:"Você não precisa resolver o relacionamento primeiro. Precisa acessar o código que conecta seu valor ao seu emprego. É esse código que vai ser acessado no dia 27.",carreira:"Você não precisa de mais qualificação. Precisa acessar o código que transforma cada entrevista em prova de que você não merece. É esse código que vai ser acessado no dia 27.",emocional:"Você não precisa de mais motivação. Precisa desligar o código que transforma desemprego em identidade. É isso que acontece no dia 27.",saude:"Você não precisa de mais energia. Precisa acessar o que está DRENANDO a energia. É essa interferência que vai ser acessada no dia 27.",espiritual:"Você não precisa de mais fé. Precisa remover o código que transformou a busca de emprego em prova espiritual. É isso que vai ser confrontado no dia 27.",familiar:"Você não precisa proteger a família da verdade. Precisa acessar o código que transforma a situação em vergonha. É esse código que vai ser acessado no dia 27."},
+    estudante:{financeiro:"Você não precisa de mais bolsa ou estágio. Precisa acessar o código que define quanto alguém da sua idade PODE ter. É esse código que vai ser acessado no dia 27.",carreira:"Você não precisa de mais orientação. Precisa acessar o código que transforma potencial em dúvida. É esse código que vai ser acessado no dia 27.",emocional:"Você não precisa de mais foco. Precisa desligar o que GERA a dispersão. É isso que acontece no dia 27.",saude:"Você não precisa de mais rotina. Precisa acessar o que impede o corpo de responder. É essa interferência que vai ser acessada no dia 27.",espiritual:"Você não precisa buscar mais respostas. Precisa remover o que bloqueia as que já tem. É isso que vai ser confrontado no dia 27.",relacional:"Você não precisa de mais maturidade. Precisa acessar o código que transforma vulnerabilidade em fraqueza. É esse código que vai ser acessado no dia 27.",familiar:"Você não precisa de aprovação. Precisa acessar o código que conecta seu valor à opinião da família. É esse código que vai ser acessado no dia 27."},
+    dolar:{financeiro:"Você não precisa pedir permissão. Precisa acessar o código que define que seu lugar é DENTRO de casa. É esse código que vai ser acessado no dia 27.",relacional:"Você não precisa de mais paciência. Precisa remover o código que define o quanto pode EXIGIR. É esse código que vai ser acessado no dia 27.",emocional:"Você não precisa ser mais forte. Precisa desligar o código que transforma pedir ajuda em egoísmo. É isso que acontece no dia 27.",saude:"Você não precisa cuidar de todo mundo primeiro. Precisa acessar o código que diz que cuidar de SI é egoísmo. É essa interferência que vai ser acessada no dia 27.",familiar:"Você não precisa se conformar. Precisa acessar o código que definiu que seu valor é servir. É esse código que vai ser acessado no dia 27.",carreira:"Você não precisa de mais coragem. Precisa acessar o código que diz que trabalho fora é abandono. É esse código que vai ser acessado no dia 27.",espiritual:"Você não precisa de mais fé. Precisa remover o código que transforma seus desejos em pecado. É isso que vai ser confrontado no dia 27."},
+  };
+  return (FECH[ocup]||FECH.clt)[sup] || FECH.clt[sup] || "";
+}
+
+// FECHAMENTOS migrado pra getFechamento()
+const DEPOIMENTOS = {
+  familiar_financeira:[
+    {texto:"O dinheiro entrava e saía. Quando entendi que minha identidade tinha um teto — uma frequência que não aceitava mais do que aquilo — e essa frequência foi resintonizada, o teto desapareceu.",autor:"M.C., 38, veterinário",ocup:["autonomo","empresario"]},
+    {texto:"Eu vivia na mesma frequência de escassez dos meus pais sem perceber. Quando a interferência foi removida na raiz, a regressão parou. Pela primeira vez, o dinheiro ficou.",autor:"A.R., 29, autônomo",ocup:["autonomo","clt"]},
+    {texto:"Trinta anos de carreira e o salário sempre no mesmo nível. Não era o mercado. Era o código que dizia 'já é muito pra alguém como você.' Quando mudou a frequência, mudou o resultado.",autor:"J.P., 52, analista",ocup:["clt","aposentado"]},
+    {texto:"Eu administrava a casa e achava que dinheiro era problema do meu marido. Quando vi que o código financeiro era MEU — da minha família — tudo mudou. Inclusive a dinâmica do casamento.",autor:"R.S., 45, do lar",ocup:["dolar"]},
+    {texto:"Depois da aposentadoria, achei que a escassez era inevitável. Quando a interferência foi removida, percebi que o teto não era da aposentadoria — era da identidade.",autor:"S.M., 61, aposentado",ocup:["aposentado"]},
+    {texto:"Sem emprego, achava que era sobre achar vaga. Quando entendi que minha identidade definia o TIPO de vaga que eu me permitia buscar, tudo mudou. Em 2 meses, estava empregado num nível que nunca tinha me permitido almejar.",autor:"D.F., 34, ex-desempregado",ocup:["desempregado"]},
+    {texto:"O negócio faturava bem mas eu não conseguia escalar. Descobri que minha identidade tinha um teto de faturamento herdado da escassez dos meus pais. Quando foi removido, o negócio triplicou em 8 meses.",autor:"L.A., 41, empresária",ocup:["empresario"]},
+  ],
+  familiar_relacional:[
+    {texto:"Cada parceiro ativava o mesmo roteiro. Quando a interferência relacional foi removida, parei de repetir o padrão dos meus pais. O relacionamento mudou porque a frequência mudou.",autor:"E.C., 40, coordenador",ocup:["clt","autonomo"]},
+    {texto:"O padrão não era dela — era uma interferência que eu trouxe da minha família. Quando foi resintonizada, a dinâmica mudou sem eu precisar forçar.",autor:"W.S., 37, operador",ocup:["clt"]},
+    {texto:"Depois de dois divórcios, achei que o problema era escolher mal. Não era. Era o código relacional que atraía o mesmo perfil. Quando mudou, o terceiro relacionamento foi completamente diferente.",autor:"M.T., 55, autônoma",ocup:["autonomo","aposentado"]},
+    {texto:"O casamento estava no automático. Trinta anos juntos e parecia que estávamos sozinhos. Quando a interferência foi removida, redescobri a pessoa do meu lado.",autor:"A.L., 58, aposentado",ocup:["aposentado","casado"]},
+    {texto:"Eu cuidava de todo mundo e ninguém cuidava de mim. Achava que amor era sacrifício. Quando vi que era código, parei de me sacrificar — e paradoxalmente, recebi mais.",autor:"C.M., 43, do lar",ocup:["dolar"]},
+  ],
+  familiar_identidade:[
+    {texto:"Eu tinha capacidade. Mas a identidade não aceitava. Quando a interferência do EU SOU foi removida, as decisões mudaram sozinhas.",autor:"A.N., 38, corretor",ocup:["autonomo","empresario"]},
+    {texto:"Nada do que eu conquistava parecia real. Sempre esperando a punição. Quando entendi que era interferência — e ela foi resintonizada — parei de sabotar as minhas conquistas.",autor:"D.C., 49, cirurgiã-dentista",ocup:["autonomo","clt"]},
+    {texto:"Diploma, mestrado, experiência. E na hora de cobrar o que valia, travava. O porteiro dizia 'quem é você pra pedir isso?' Quando saiu, dobrei meu faturamento em 4 meses.",autor:"F.R., 36, consultora",ocup:["autonomo","empresario"]},
+    {texto:"Passei a vida inteira achando que não era boa o suficiente. Na aposentadoria, a sensação piorou — 'agora então que não sou.' Quando a interferência foi removida, descobri que meu valor nunca dependeu de um crachá.",autor:"I.G., 62, aposentada",ocup:["aposentado"]},
+    {texto:"Eu era a melhor aluna e mesmo assim achava que era fraude. Quando a interferência da identidade foi acessada, vi que o impostorismo não era personalidade — era código.",autor:"B.K., 23, estudante",ocup:["estudante"]},
+  ],
+  preverbal:[
+    {texto:"Um bloqueio que eu não sabia explicar. Não tinha frase, não tinha evento. Quando entendi que a interferência veio antes das palavras, fez sentido. Quando foi acessada, o corpo finalmente relaxou.",autor:"R.V., 38, policial militar",ocup:["clt"]},
+    {texto:"Medo de agir, mas não sabia de quê. Nenhuma terapia resolvia porque tentavam resolver com a mente o que estava no corpo. Quando a interferência pré-verbal foi removida, o medo perdeu o comando.",autor:"F.V., 36, operador",ocup:["clt","autonomo"]},
+    {texto:"Eu sentia uma tensão constante sem motivo. Não era ansiedade — era mais profundo. Quando a interferência pré-verbal foi acessada, entendi que não era MINHA. Era anterior a mim.",autor:"P.M., 51, empresária",ocup:["empresario","autonomo"]},
+    {texto:"Depois de me aposentar, a tensão piorou em vez de melhorar. Sem o trabalho pra disfarçar, o corpo gritou. Quando a interferência foi removida, senti paz pela primeira vez em décadas.",autor:"H.C., 63, aposentado",ocup:["aposentado"]},
+    {texto:"Eu não conseguia me conectar com as pessoas. Não era timidez. Era algo no corpo que recuava antes de eu decidir. Quando a interferência pré-verbal foi resintonizada, consegui me abrir.",autor:"T.L., 28, estudante",ocup:["estudante","clt"]},
+  ],
+  religiosa:[
+    {texto:"Culpa e medo. Eu achava que eram fé. Quando vi que era interferência usando a linguagem de Deus, tudo mudou. A culpa saiu. A fé ficou. Mais forte, inclusive.",autor:"A.R., 37, CLT",ocup:["clt","dolar"]},
+    {texto:"A interferência religiosa operava em cada decisão financeira, em cada desejo. Quando foi resintonizada, não perdi a fé. Ganhei liberdade dentro dela.",autor:"G.D., 53, servidora pública",ocup:["clt","aposentado"]},
+    {texto:"Eu era empresário e sentia culpa de prosperar. Como se Deus fosse me cobrar. Quando entendi que era código — não Deus — o negócio dobrou e a fé ficou mais limpa.",autor:"R.P., 47, empresário",ocup:["empresario","autonomo"]},
+    {texto:"Querer algo pra mim era pecado. Cuidar dos outros era virtude. Quando a interferência foi removida, descobri que cuidar de mim não era egoísmo — era obrigação.",autor:"V.S., 50, do lar",ocup:["dolar"]},
+    {texto:"Na aposentadoria, a culpa religiosa piorou. 'Se sofri a vida toda, pelo menos o céu está garantido.' Quando vi que era interferência, chorei de alívio.",autor:"M.A., 65, aposentada",ocup:["aposentado"]},
+  ],
+  sistemica:[
+    {texto:"Doze anos de escola me ensinaram a esperar instrução. Quando a interferência foi removida, agi pela primeira vez sem pedir permissão. O resultado veio em semanas.",autor:"C.L., 48, servidor público",ocup:["clt","aposentado"]},
+    {texto:"Era um teto invisível. 'Não é pra alguém como eu.' Quando a interferência foi resintonizada, ultrapassei em 3 meses o que tentei em 5 anos.",autor:"E.N., 49, cabeleireira",ocup:["autonomo"]},
+    {texto:"Eu era a única da família que chegou na faculdade. E mesmo assim, o código dizia: 'não é seu lugar.' Quando a interferência sistêmica foi removida, ocupei o espaço que sempre foi meu.",autor:"L.C., 33, analista",ocup:["clt","estudante"]},
+    {texto:"Como mulher no mundo dos negócios, o teto era duplo: o do sistema e o de gênero. Quando os dois foram acessados, o negócio escalou em 6 meses.",autor:"A.F., 42, empresária",ocup:["empresario"]},
+    {texto:"Depois de décadas obedecendo o sistema — emprego estável, não arrisque, agradeça — me aposentei e senti vazio. Quando a interferência foi removida, comecei o projeto que adiei a vida inteira.",autor:"J.R., 60, aposentado",ocup:["aposentado"]},
+  ],
+  biografica:[
+    {texto:"Depois da falência, eu virei 'o falido.' Quando a interferência biográfica foi removida, vi que a identidade era opcional. A realidade mudou porque a frequência mudou.",autor:"C.R., 39, empresário",ocup:["empresario","autonomo"]},
+    {texto:"Construí minha identidade ao redor da dor. Quando a interferência foi acessada na raiz, a pessoa de antes ainda estava lá. Intacta.",autor:"G.D., 53, servidora pública",ocup:["clt","aposentado"]},
+    {texto:"O divórcio me definiu por 8 anos. 'A divorciada.' Quando a interferência biográfica foi resintonizada, parei de ser o evento. E a vida recomeçou.",autor:"M.L., 46, autônoma",ocup:["autonomo","dolar"]},
+    {texto:"O diagnóstico virou minha identidade. 'O doente.' Quando entendi que o evento não precisava ser quem eu sou, o corpo respondeu diferente ao tratamento.",autor:"P.A., 55, aposentado",ocup:["aposentado"]},
+    {texto:"Perdi meu pai aos 15. E me tornei 'o menino que perdeu o pai.' Vinte anos depois, quando a interferência foi removida, descobri quem eu era SEM esse rótulo.",autor:"R.M., 35, CLT",ocup:["clt","estudante"]},
+  ],
+};
+const JA_BUSCOU = { terapia:"Você já tentou terapia. Talvez tenha ajudado a entender de onde veio. Mas entender não resolveu. Porque a terapia opera na mente consciente — e o porteiro opera no subconsciente.",coaching:"Você já tentou coaching. Recebeu ferramentas, métodos. E funcionou por 3 dias. Porque ferramenta é informação — e informação entra pela mente consciente. O porteiro compara com o código e barra.",conteudo:"Você consome conteúdo. Absorve tudo. Sente que aprendeu. E não age. Porque conteúdo gera dopamina como substituto de ação.",alternativa:"Você já buscou caminhos alternativos. E sentiu algo. Dias depois, volta. Porque esses métodos tocam a frequência, mas não acessam a IDENTIDADE.",nada:"Você nunca buscou ajuda. E pode ser a coisa mais inteligente que fez. Algo dentro de você sabia que o disponível não ia resolver."};
+
+
+// ═══ v6.0 — P9 WOVEN INTO MECHANISMS (fix P4) ═══
+function gerarP9Porteiro(p9, raiz, registro) {
+  if (!p9 || p9.length === 0) return [];
+  const B = [];
+  if (p9.includes("terapia")) B.push("Você tentou terapia. A terapia opera na mente consciente — e o porteiro opera no subconsciente. O porteiro DEIXA você falar sobre o problema. Não deixa você SAIR dele. Entender de onde veio não remove o código.");
+  if (p9.includes("coaching")) B.push("Você tentou coaching. Ferramentas, metas, métodos. Funcionou por uns dias. Porque ferramenta é informação — e informação entra pela mente consciente. O porteiro compara com o código antigo e barra. A motivação evapora em 72 horas.");
+  if (p9.includes("conteudo")) B.push("Você consome conteúdo. Vídeos, lives, podcasts. Sente que aprendeu. E não age. Porque conteúdo gera dopamina como SUBSTITUTO de ação — o cérebro sente a recompensa de aprender e dispensa a recompensa de fazer. O porteiro adora conteúdo: parece que está mudando, sem mudar nada.");
+  return B;
+}
+function gerarP9Corpo(p9) {
+  if (!p9 || p9.length === 0) return [];
+  const B = [];
+  if (p9.includes("alternativa")) B.push("Você buscou caminhos alternativos — constelação, reiki, barras, algo nessa linha. Sentiu algo. Dias depois, voltou. Porque esses métodos tocam a frequência mas NÃO reprogramam o vício hormonal. O corpo retorna ao estado químico que conhece.");
+  if (p9.includes("terapia")) B.push("A terapia te ajudou a entender. Mas o corpo não se convence com entendimento — se convence com REPETIÇÃO de um novo estado. E o vício hormonal puxa de volta antes da repetição se consolidar.");
+  return B;
+}
+function gerarP9Frequencia(p9) {
+  if (!p9 || p9.length === 0) return [];
+  const B = [];
+  if (p9.includes("nada")) B.push("Você nunca buscou ajuda. E talvez tenha sido a coisa mais inteligente que fez. Algo dentro de você sabia que o disponível não ia resolver. Porque o problema não está onde esses métodos atuam. Está na frequência — e frequência não se muda com ferramenta, com conteúdo, nem com sessão.");
+  if (p9.includes("alternativa")) B.push("Os métodos alternativos que você buscou — constelação, reiki, barras — tocam a frequência por um instante. Mas sem reescrever a identidade que EMITE a frequência, ela volta ao ponto de origem. É como sacudir a bússola: o ponteiro gira, mas o norte magnético permanece.");
+  return B;
+}
+
+// ═══ v6.0 — DEMO-AWARE S4 BLOCKS (fix P5+P6) ═══
+const OCUP_IDENTIDADE = {
+  clt: { paralisado: "No trabalho, a identidade se manifesta na incapacidade de pedir aumento, propor mudanças, tomar iniciativa — e na raiva silenciosa de ver quem faz menos crescer mais.", sabotador: "No trabalho, a identidade se manifesta em decisões que comprometem o que você construiu — como se o sucesso profissional ativasse um alarme interno.", esgotado: "No trabalho, a identidade se manifesta no esforço que nunca é proporcional ao reconhecimento — porque o código diz que mais esforço deveria compensar a interferência. Não compensa.", repetidor: "No trabalho, a identidade cria o ciclo: projeto novo, empolgação, início forte, abandono. O porteiro interrompe antes do resultado chegar.", comparador: "No trabalho, a identidade usa cada colega como espelho: 'ele sim, eu não.' A comparação profissional é cruel porque parece objetiva.", anestesiado: "No trabalho, a identidade desligou a ambição. Você vai, faz o mínimo, volta. Não é preguiça. É um corpo que parou de investir energia onde não vê retorno." },
+  autonomo: { _default: "Como autônom{suf}, a identidade é ainda mais visível: sem estrutura externa, é ela quem dita quanto você cobra, quanto aceita, quanto engole. O teto não é do mercado. É do código." },
+  empresario: { _default: "No negócio, a identidade define o teto: quanto a empresa pode crescer, que tipo de cliente você aceita, que riscos toma. O negócio cresce até o limite que a identidade permite — e para." },
+  estudante: { _default: "Nos estudos, a identidade aparece como dúvida sobre o futuro. A sensação de que os outros têm algo que você não tem — não é competência, é uma frequência de pertencimento que o código bloqueia." },
+  desempregado: { _default: "Na busca por trabalho, a identidade opera em cada currículo enviado, cada entrevista: 'quem sou eu pra pedir isso?' O código define até o tipo de vaga que você se permite almejar." },
+  dolar: { _default: "Dentro de casa, a identidade se manifesta na sensação de que sua vida se resume a servir — e que querer algo pra si é egoísmo. Não é. É interferência." },
+  aposentado: { _default: "Depois de décadas de contribuição, a identidade diz que o melhor já passou. Mas a interferência não tem prazo de validade — e nem a possibilidade de removê-la." },
+};
+function getOcupIdentidade(ocup, padrao, suf) {
+  const o = OCUP_IDENTIDADE[ocup];
+  if (!o) return "";
+  if (o[padrao]) return o[padrao];
+  if (o._default) return o._default.replace(/\{suf\}/g, suf);
+  return "";
+}
+
+const CIVIL_IDENTIDADE = {
+  divorciado: "O divórcio não foi o problema. Foi o sintoma mais visível. A identidade que opera em relações criou as condições — e se o código não mudar, o próximo relacionamento vai seguir o mesmo roteiro.",
+  viuvo: "A perda que você viveu é real. Mas a identidade que se formou ao redor dela pode estar impedindo a próxima fase — não por honrar quem partiu, mas por medo de se permitir viver de novo.",
+  casado: "Dentro do casamento, a identidade opera em silêncio. Define quanto de si você mostra, quanto engole, quanto aceita.",
+  casado_filhos: "Dentro do casamento, a identidade opera em silêncio. E seus filhos estão absorvendo esse código AGORA — do mesmo jeito que você absorveu dos seus pais.",
+  solteiro: "Estar sem parceiro não é o problema. O problema é que a identidade TRANSFORMA a solidão em prova de que algo está errado com você. E a prova se torna profecia.",
+  namorando: "No namoro, a identidade aparece nos padrões: quanto tempo até a distância aparecer, em que momento a guarda sobe, quando o medo da perda vira controle ou afastamento.",
+};
+function getCivilIdentidade(civil, familia) {
+  if (civil === "casado" && familia === "casal_filhos") return CIVIL_IDENTIDADE.casado_filhos;
+  return CIVIL_IDENTIDADE[civil] || "";
+}
+
+const RENDA_IDENTIDADE = {
+  baixo: "A renda baixa não é causa. É REFLEXO. A identidade define um teto — e o teto está abaixo do que você precisa pra viver com dignidade. Não é o mercado. É o código.",
+  medio: "Você ganha o suficiente pra sobreviver. Mas a identidade tem um teto que não te deixa prosperar. Cada vez que ultrapassa, algo corrige. E volta pro mesmo nível.",
+  alto: "Você ganha bem. Mas o dinheiro não trouxe paz. Porque a identidade não associa dinheiro a paz — associa a tensão. Mais dinheiro, mais tensão. Não mais liberdade.",
+};
+
+// ═══ v6.0 — S1 PERSONALIZATION FUNCTION (fix P2+P7) ═══
+function gerarAberturaS1(padrao, sup, answers, demo) {
+  const sup_lower = SUPERFICIES.find(s=>s.id===sup)?.label?.split("—")[0]?.trim()?.toLowerCase()||sup;
+  const aspiracao = ASPIRACAO_TEXTOS[answers.P_ASPIRACAO];
+  const padrao_base = getPadraoSuperficie(padrao, sup, demo.ocup);
+  const B = [];
+  // v6.2: Abrir com ASPIRAÇÃO + frase demo HUMANIZADA
+  if (aspiracao) {
+    B.push({t: `Você disse que se nada te impedisse, iria ${aspiracao}.`, s:{fontSize:21}});
+    // Frase demo narrativa em vez de concatenação mecânica
+    const idade_frase = (["45-54","55-64","65+"].includes(answers.Q_IDADE)) ? `Você tem mais de ${answers.Q_IDADE === "65+" ? "65" : answers.Q_IDADE === "55-64" ? "55" : "45"} anos` : (["25-34"].includes(answers.Q_IDADE)) ? "Você tem menos de 35 anos" : (["18-24","<18"].includes(answers.Q_IDADE)) ? "Você ainda é jovem" : "Você está no meio da vida";
+    const civil_frase = {solteiro:"sem ninguém do lado",namorando:"num relacionamento",casado:"casad"+demo.suf,divorciado:"carregando um divórcio",viuvo:"carregando uma perda"}[demo.civil] || "";
+    const ocup_frase = {clt:"trabalha pra alguém",autonomo:"se vira sozin"+demo.suf,empresario:"toca um negócio",aposentado:"já deu o que tinha que dar profissionalmente",desempregado:"sem trabalho fixo",estudante:"ainda estudando",dolar:"cuida da casa, dos filhos, de todo mundo"}[demo.ocup] || "";
+    const renda_frase_fin = {baixo:"e a conta não fecha",medio:"e a sensação de estagnação é constante",alto:"e mesmo assim a paz não veio"};
+    const renda_frase_exist = {baixo:"e algo pesa por dentro",medio:"e mesmo assim, algo falta",alto:"e mesmo com tudo isso, algo não encaixa"};
+    const _rendaKey = demo.ocup === "desempregado" ? "baixo" : demo.financeiro;
+    const renda_frase = (["emocional","relacional","espiritual","familiar","saude"].includes(answers.P10) ? renda_frase_exist : renda_frase_fin)[_rendaKey] || "";
+    const frase = `${idade_frase}. ${civil_frase ? civil_frase.charAt(0).toUpperCase()+civil_frase.slice(1)+". " : ""}${ocup_frase ? ocup_frase.charAt(0).toUpperCase()+ocup_frase.slice(1) : ""}${renda_frase ? " — "+renda_frase : ""}. A distância entre o que você quer e o que vive — essa distância tem nome.`;
+    B.push({t: frase, s:{color:C.textMid}});
+  }
+  if (padrao_base) B.push({t: padrao_base, s:{}});
+  return B;
+}
+
+
+// ═══ v6.1 — INSERÇÕES BIO-1 e BIO-2 (Peças #10/#11) ═══
+const INSERCAO_BIO1 = {
+  B: "Os seus pais se separaram. E independente da idade que você tinha quando aconteceu, a separação instalou um código adicional: \"as coisas que parecem estáveis podem acabar.\" Esse código reforça a raiz que acabamos de ver. Não por causa do divórcio em si, mas pela FREQUÊNCIA de instabilidade que ficou gravada no seu sistema nervoso a partir daquele momento.",
+  C: "Você perdeu uma das pessoas mais importantes da sua formação. E a ausência que ficou não é só emocional. É estrutural. O cérebro da criança constrói o modelo do mundo a partir das figuras que estão presentes. Quando uma delas desaparece, o modelo fica incompleto. E a identidade que se forma a partir desse modelo carrega a marca da incompletude.",
+  D: "Você foi criado(a) por pessoas que não eram seus pais biológicos. Isso não é necessariamente ruim. Mas gera uma camada a mais de interferência: a pergunta \"por que eu não fui suficiente pra ficar?\" opera no subconsciente mesmo quando a mente consciente entende o contexto. Essa pergunta se instala na trilha do EU SOU e influencia tudo que vem depois.",
+  E: "Seu pai esteve ausente. Fisicamente, emocionalmente, ou ambos. Na formação da identidade, o pai representa a figura de DIREÇÃO, de referência externa. Quando essa referência falta, a criança busca dentro de si algo que deveria ter vindo de fora. E como não encontra, o código que se instala é: \"eu preciso me virar sozinho(a) porque ninguém vai me mostrar o caminho.\"",
+  F: "Você cresceu em ambiente institucional. Isso significa que a interferência pré-verbal foi especialmente intensa: a inconsistência dos cuidadores, a rotatividade das figuras de referência, a impossibilidade de formar um vínculo estável. A antena foi montada num contexto onde estabilidade era exceção. E o código que se instalou reflete isso em cada relação e em cada decisão que você toma.",
+  G: "A sua estrutura familiar não segue o padrão convencional. E isso, por si só, já carrega uma camada de interferência: o mundo foi desenhado pra famílias que seguem o modelo. Quando o seu modelo é diferente, o sistema ao redor reforça constantemente que algo está \"fora do lugar.\" Esse reforço externo se soma à interferência interna e amplifica.",
+};
+
+const INSERCAO_BIO2 = {
+  A: "Você reconheceu que alguém importante na sua vida simplesmente foi embora. E isso mudou quem você é. Essa marca opera em duas camadas: na camada do apego (o sistema nervoso aprendeu que vínculo é temporário) e na camada da identidade (o código que ficou diz: \"não sou suficiente pra alguém ficar\"). Essas duas camadas juntas explicam por que novas conexões geram mais medo do que esperança.",
+  B: "Você reconheceu que vive com a sensação de que financeiramente o chão pode ceder a qualquer momento. Essa sensação não é paranoia. É um código ativo, alimentado tanto pela história da sua família quanto pela sua experiência direta. O sistema nervoso está em alerta permanente sobre dinheiro. E enquanto estiver em alerta, cada decisão financeira é filtrada pelo medo antes de virar ação.",
+  C: "Você reconheceu que tem dificuldade de confiar, mesmo quando a pessoa mostra que é boa. Isso não é \"trauma\" no sentido genérico. É um CÓDIGO FUNCIONAL: o porteiro aprendeu que confiar precede dor. E agora filtra automaticamente qualquer sinal de confiabilidade como suspeito. Não importa o que a pessoa faça. O porteiro avalia, desconfia e bloqueia antes de você decidir conscientemente.",
+  D: "Você reconheceu que passou por algo que fez o mundo parecer um lugar inseguro. Esse evento criou um divisor: antes e depois. E o código que se instalou no \"depois\" não foi uma opinião. Foi uma reestruturação da identidade. O sistema nervoso recalibrou o nível de ameaça base. O que antes parecia normal, agora parece arriscado. Você não está sendo pessimista. Está operando com um calibre de risco que foi alterado por experiência real.",
+  E: "Você reconheceu que não teve um evento. Foi erosão. Anos de desgaste, de tentativas sem resultado, de esperança que vai se apagando devagar. E essa forma de interferência é especialmente difícil de identificar porque não tem data, não tem nome, não tem história pra contar. É só um peso que foi se acumulando. E agora parece normal. Parece \"a vida.\" Mas não é. É a soma de milhares de micro-frustrações que o sistema nervoso transformou em regra: \"não adianta.\"",
+};
+
+function gerarInsercoesBio(answers, raiz) {
+  const B = [];
+  const isBio = raiz === "biografica";
+  // v6.2: Quando raiz=biográfica, contextualizar como terreno fértil
+  if (isBio && (answers.BIO1 && answers.BIO1 !== "A") || (answers.BIO2 && answers.BIO2.length > 0 && !answers.BIO2.includes("F"))) {
+    if (isBio) B.push("O evento que marcou a sua vida não caiu num terreno vazio. Já existiam camadas anteriores — da infância, da estrutura familiar — que tornaram o impacto mais profundo. Não causaram a interferência. Mas criaram o TERRENO FÉRTIL.");
+  }
+  const bio1 = answers.BIO1;
+  if (bio1 && INSERCAO_BIO1[bio1]) B.push(INSERCAO_BIO1[bio1]);
+  const bio2 = answers.BIO2 || [];
+  bio2.forEach(v => { if (v !== "F" && INSERCAO_BIO2[v]) B.push(INSERCAO_BIO2[v]); });
+  return B;
+}
+
+
+// ═══ v7.4 — Seleção de depoimentos por ocupação ═══
+function selecionarDepoimentos(raiz, ocup) {
+  const deps = DEPOIMENTOS[raiz] || [];
+  if (deps.length <= 2) return deps;
+  // If we have tagged depoimentos in the future, filter here
+  // For now, return all available (max 2)
+  return deps.slice(0, 2);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SCORING (inalterado)
+// ═══════════════════════════════════════════════════════════════
+function calcularScores(a) {
+  const fam_fin=((a.P12||0)+(a.P19||0)+(a.P_NEW_FIN||0))/3,fam_id=((a.P14||0)+(a.P_NEW_ID||0))/2,fam_rel=((a.P16||0)+(a.P18||0)+(a.P_NEW_REL||0))/3,prev=((a.P25||0)+(a.P26||0)+(a.P27||0))/3,relig=((a.P13||0)+(a.P15||0)+(a.P17||0))/3,sist=((a.P20||0)+(a.P21||0)+(a.P22||0))/3,biog=(function(){
+    const ev=a.P23_EVENTO||[];
+    const concretos=ev.filter(v=>["falencia","divorcio","perda","diagnostico","violencia"].includes(v));
+    let p23_equiv=0;
+    if(concretos.length>=2)p23_equiv=5;
+    else if(concretos.length===1)p23_equiv=4;
+    else if(ev.includes("acumulo"))p23_equiv=2;
+    else p23_equiv=0;
+    return(p23_equiv+(a.P24||0)+(a.P33||0))/3;
+  }());
+  let scores={familiar_financeira:fam_fin,familiar_identidade:fam_id,familiar_relacional:fam_rel,preverbal:prev,religiosa:relig,sistemica:sist,biografica:biog};
+  const b1=a.BIO1,b2=a.BIO2||[];
+  if(b1==="B")scores.familiar_relacional+=0.5;if(b1==="C"){scores.biografica+=0.5;scores.preverbal+=0.3;}if(b1==="D"||b1==="E")scores.preverbal+=0.5;if(b1==="F")scores.preverbal+=0.7;
+  if(b2.includes("A")){scores.preverbal+=0.4;scores.familiar_relacional+=0.3;}
+  if(b2.includes("B")){scores.familiar_financeira+=0.5;scores.biografica+=0.1;}
+  if(b2.includes("C")){scores.preverbal+=0.4;scores.familiar_relacional+=0.3;}
+  // v7: D e E amplificam o líder atual em vez de empurrar biográfica
+  if(b2.includes("D")){const _l=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];scores[_l]+=0.3;scores.biografica+=0.15;}
+  if(b2.includes("E")){const _l=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];scores[_l]+=0.3;}
+  if(a.P_SOMA==="E")scores.religiosa+=0.2;if(a.P_SOMA==="F")scores.preverbal+=0.2;
+  // v7.1: Cruzamento Q_RELIGIAO × P13/P15/P17 — boost religioso inferido
+  const _rel=a.Q_RELIGIAO||"";
+  if(["evangelico","catolico"].includes(_rel)){
+    if((a.P17||0)>=3)scores.religiosa+=0.4;
+    if((a.P13||0)>=3)scores.religiosa+=0.3;
+    if((a.P15||0)>=3)scores.religiosa+=0.3;
+  }
+  Object.keys(scores).forEach(k=>{if(typeof scores[k]==='number'&&scores[k]>5.5)scores[k]=5.5;});
+  // FIX BUG #2: Desempate por correlação com superfície
+  const sup_input = a.P10 || "";
+  const SUP_RAIZ_CORR = {
+    financeiro:["familiar_financeira","sistemica","religiosa"],
+    relacional:["familiar_relacional","preverbal","biografica"],
+    familiar:["familiar_relacional","familiar_financeira","familiar_identidade"],
+    carreira:["familiar_identidade","sistemica","familiar_financeira"],
+    saude:["preverbal","biografica","sistemica"],
+    emocional:["preverbal","biografica","familiar_relacional"],
+    espiritual:["religiosa","preverbal","familiar_identidade"],
+  };
+  const corr = SUP_RAIZ_CORR[sup_input] || [];
+  const sorted=Object.entries(scores).sort((a,b)=>{
+    if(b[1]!==a[1])return b[1]-a[1];
+    const ai=corr.indexOf(a[0]),bi=corr.indexOf(b[0]);
+    return (ai>=0?ai:99)-(bi>=0?bi:99);
+  }),margem=sorted[0][1]-sorted[1][1];
+  let raiz,raiz_sec=null,conf;if(margem>=0.8){raiz=sorted[0][0];conf="alta";}else if(margem>=0.4){raiz=sorted[0][0];raiz_sec=sorted[1][0];conf="media";}else{raiz=sorted[0][0];raiz_sec=sorted[1][0];conf="composta";}
+  let esg=(a.P11||0);if(b2.includes("E"))esg+=0.5;const pad={repetidor:a.P28||0,sabotador:a.P29||0,esgotado:esg,comparador:a.P30||0,anestesiado:a.P31||0,paralisado:a.P32||0};if(a.P_SOMA==="D")pad.anestesiado+=0.3;
+  const ps=Object.entries(pad).sort((a,b)=>b[1]-a[1]);let padrao=ps[0][0],pad_sec=ps[1][0];
+  const p34m={A:"paralisado",B:"paralisado",C:"esgotado",D:"anestesiado",E:"esgotado",F:"repetidor",G:"sabotador"},p34p=p34m[a.P34];
+  if(p34p&&p34p!==padrao&&Math.abs(pad[padrao]-pad[p34p])<=1)padrao=p34p;
+  return{scores,raiz,raiz_secundaria:raiz_sec,confianca:conf,padroes:pad,padrao,padrao_secundario:pad_sec,padrao_score_sec:ps[1][1]};
+}
+
+// ═══════════════════════════════════════════════════════════════
+// QUESTIONS v4.2
+// ═══════════════════════════════════════════════════════════════
+const QUESTIONS = [
+  // ── FASE 1: CONTEXTUALIZAÇÃO ──
+  {id:"P8",phase:1,label:"Fase 1",title:"Como você se considera em relação à sua jornada de autoconhecimento?",type:"single",options:[
+    {value:"A",label:"Estou começando agora, ainda me sinto confuso(a)"},
+    {value:"B",label:"Já pesquiso e consumo conteúdo, mas sinto que falta clareza"},
+    {value:"C",label:"Já estudo há algum tempo, mas não consigo colocar em prática o que sei"},
+    {value:"D",label:"Já aplico alguns conhecimentos e sinto mudanças, mas sinto que algo ainda me trava"},
+    {value:"E",label:"Tenho vivências reais e sinto minha consciência expandindo"},
+  ]},
+  {id:"P9",phase:1,label:"Fase 1",title:"O que você já buscou pra tentar mudar sua situação?",subtitle:"Se quiser, selecione mais de uma opção e aperte continuar.",type:"multi",options:[
+    {value:"terapia",label:"Terapia, psicólogo ou psiquiatra"},
+    {value:"coaching",label:"Coaching, mentoria ou cursos pagos de autoconhecimento"},
+    {value:"conteudo",label:"Conteúdo gratuito na internet (vídeos, lives, podcasts)"},
+    {value:"alternativa",label:"Terapia alternativa (constelação, reiki, barras, etc.)"},
+    {value:"nada",label:"Nada até agora"},
+  ]},
+  {id:"P10",phase:1,label:"Fase 1",title:"Qual área da sua vida mais sofre HOJE?",type:"single",options:SUPERFICIES.map(s=>({value:s.id,label:s.label}))},
+  {id:"P_SOMA",phase:1,label:"Fase 1",title:"Quando pensa nessa área, o que sente PRIMEIRO no corpo?",type:"single",options:[{value:"A",label:"Aperto no peito, nervosismo"},{value:"B",label:"Peso nos ombros, frustração"},{value:"C",label:"Nó no estômago, cansaço"},{value:"D",label:"Cansaço súbito, desesperança"},{value:"E",label:"Vazio, culpa"},{value:"F",label:"Não percebo / não sei explicar"}]},
+  {id:"P_ASPIRACAO",phase:1,label:"Fase 1",title:"Se NADA te impedisse, o que você faria PRIMEIRO?",type:"single",options:[{value:"financeiro",label:"Ganharia o dinheiro que mereço, sem teto"},{value:"relacional",label:"Viveria uma relação de verdade, sem medo"},{value:"familiar",label:"Teria paz com a minha família"},{value:"carreira",label:"Seguiria meu propósito profissional sem travar"},{value:"saude",label:"Cuidaria do meu corpo de verdade"},{value:"emocional",label:"Me sentiria leve, presente, em paz"},{value:"espiritual",label:"Me reconectaria com Deus sem culpa"}]},
+  {id:"P11",phase:1,label:"Fase 1",title:"Sente que já tentou de tudo?",type:"scale"},
+  {id:"BIO1",phase:1,label:"Fase 1",title:"Como era a estrutura da sua família quando criança?",type:"single",options:[{value:"A",label:"Pais juntos, família nuclear"},{value:"B",label:"Pais se divorciaram"},{value:"C",label:"Perdi meu pai ou minha mãe"},{value:"D",label:"Fui criado(a) por avós ou outros"},{value:"E",label:"Pai ou mãe ausente"},{value:"F",label:"Cresci em instituição"},{value:"G",label:"Outra configuração"}]},
+  {id:"_TRANS1",phase:1.5,type:"transition",text:"Agora eu sei quem você é. A partir daqui, quero entender O QUE está operando dentro de você."},
+  // ── FASE 2: MERGULHO ──
+  {id:"P12",phase:2,label:"Fase 2",title:"Na sua casa, quando criança, dinheiro era assunto tenso.",type:"scale"},
+  {id:"P13",phase:2,label:"Fase 2",title:"Cresci ouvindo que dinheiro era algo sujo ou perigoso.",type:"scale"},
+  {id:"P25",phase:2,label:"Fase 2",title:"Quando algo bom acontece, a primeira reação é medo de que vai acabar.",type:"scale"},
+  {id:"P14",phase:2,label:"Fase 2",title:"Na minha casa, ouvi frases de que eu não era capaz ou que não era pra mim.",type:"scale"},
+  {id:"P15",phase:2,label:"Fase 2",title:"Cresci acreditando que sofrer era provação ou virtude.",type:"scale"},
+  {id:"P20",phase:2,label:"Fase 2",title:"As pessoas ao meu redor não acreditam no que eu posso me tornar.",type:"scale"},
+  {id:"P16",phase:2,label:"Fase 2",title:"Existia conflito frequente entre meus pais.",type:"scale"},
+  {id:"P17",phase:2,label:"Fase 2",title:"Sinto culpa quando quero algo pra mim.",type:"scale"},
+  {id:"P26",phase:2,label:"Fase 2",title:"Tenho dificuldade de pedir ajuda, mesmo quando preciso.",type:"scale"},
+  {id:"P18",phase:2,label:"Fase 2",title:"Na minha casa, era difícil expressar o que eu sentia.",type:"scale"},
+  {id:"P19",phase:2,label:"Fase 2",title:"Cresci ouvindo frases de escassez sobre dinheiro.",subtitle:"\"Não temos dinheiro pra nada\", \"como vamos sair dessa\", \"não podemos comprar isso\"",type:"scale"},
+  {id:"P21",phase:2,label:"Fase 2",title:"Não me sinto seguro(a) pra ser quem realmente sou no meu ambiente.",type:"scale"},
+  {id:"P_NEW_FIN",phase:2,label:"Fase 2",title:"Na minha casa, quando alguém prosperava, a reação era desconfiança.",type:"scale"},
+  {id:"P_NEW_ID",phase:2,label:"Fase 2",title:"Os meus sonhos não eram celebrados pela minha família.",type:"scale"},
+  {id:"P_NEW_REL",phase:2,label:"Fase 2",title:"Demonstrações de afeto entre meus pais eram raras.",type:"scale"},
+  {id:"P22",phase:2,label:"Fase 2",title:"Sinto pressão pra ser ou fazer algo por causa do meu gênero.",type:"scale"},
+  {id:"P23_EVENTO",phase:2,label:"Fase 2",title:"Aconteceu algo específico na sua vida adulta que mudou quem você é?",type:"multi",options:[
+    {value:"falencia",label:"Falência ou perda financeira grave"},
+    {value:"divorcio",label:"Divórcio ou fim de relação importante"},
+    {value:"perda",label:"Perda de alguém (morte)"},
+    {value:"diagnostico",label:"Diagnóstico médico sério"},
+    {value:"violencia",label:"Violência, abuso ou trauma"},
+    {value:"acumulo",label:"Não houve um evento — foi acúmulo ao longo dos anos"},
+    {value:"nada",label:"Nada disso se aplica"},
+  ]},
+  {id:"P27",phase:2,label:"Fase 2",title:"Quero me conectar com pessoas, mas na hora recuo.",type:"scale"},
+  {id:"P24",phase:2,label:"Fase 2",title:"Sinto que a minha identidade é definida pela dor que vivi.",type:"scale"},
+  {id:"BIO2",phase:2,label:"Fase 2",title:"O que ficou gravado em você como marca da sua história?",type:"multi",options:[{value:"A",label:"Alguém foi embora e mudou quem eu sou"},{value:"B",label:"A sensação de que o chão financeiro pode ceder"},{value:"C",label:"Dificuldade de confiar nas pessoas"},{value:"D",label:"A sensação de que o mundo não é seguro"},{value:"E",label:"Desgaste acumulado ao longo dos anos"},{value:"F",label:"Nenhuma das opções acima"}]},
+  {id:"_TRANS2",phase:2.5,type:"transition",text:"Agora vamos olhar pro espelho. As próximas perguntas são sobre como a interferência se manifesta no seu dia a dia."},
+  {id:"_TRANS_META",phase:3,type:"transition",text:"Presta atenção no que você está sentindo AGORA, enquanto responde esse quiz."},
+  // ── FASE 3: ESPELHO ──
+  {id:"P_META",phase:3,label:"Fase 3",title:"Neste momento, algo dentro de você está dizendo \"isso não vai funcionar\"?",type:"scale"},
+  {id:"P28",phase:3,label:"Fase 3",title:"Começo coisas com energia, mas paro antes de terminar.",type:"scale"},
+  {id:"P29",phase:3,label:"Fase 3",title:"Quando as coisas começam a dar certo, faço algo que estraga.",type:"scale"},
+  {id:"P30",phase:3,label:"Fase 3",title:"Me comparo com os outros e me sinto pra trás.",type:"scale"},
+  {id:"P31",phase:3,label:"Fase 3",title:"Funciono no piloto automático, sem sentir muito.",type:"scale"},
+  {id:"P32",phase:3,label:"Fase 3",title:"Sei o que preciso fazer, mas não consigo agir.",type:"scale"},
+  {id:"P33",phase:3,label:"Fase 3",title:"Parei de tentar mudar certas coisas na minha vida.",type:"scale"},
+  {id:"P34",phase:3,label:"Fase 3",title:"Qual pensamento se repete mais na sua cabeça?",type:"single",options:[{value:"A",label:"\"Eu não vou conseguir\""},{value:"B",label:"\"Não adianta tentar\""},{value:"C",label:"\"Eu já fiz de tudo\""},{value:"D",label:"\"Tanto faz\""},{value:"E",label:"\"Eu não mereço\""},{value:"F",label:"\"De novo isso\""},{value:"G",label:"\"Por que eu estrago tudo?\""}]},
+  // ── FASE 4: ABERTURA ──
+  {id:"P35",phase:4,label:"Fase 4",title:"Se a interferência sumisse, o que mudaria DE VERDADE?",type:"single",options:[{value:"financeiro",label:"Eu finalmente ganharia e manteria o dinheiro que mereço"},{value:"relacional",label:"Eu teria uma relação de verdade, sem medo"},{value:"familiar",label:"Eu teria paz com a minha família"},{value:"carreira",label:"Eu seguiria meu propósito sem travar"},{value:"saude",label:"Meu corpo finalmente responderia ao que faço por ele"},{value:"emocional",label:"Me sentiria leve, presente, sem ansiedade"},{value:"espiritual",label:"Me reconectaria com Deus de verdade, sem culpa"}]},
+  // ── FASE 5: QUALIFICAÇÃO + DADOS ──
+  {id:"Q_IDADE",phase:5,label:"Sobre você",title:"Qual é a sua faixa de idade?",type:"single",options:[{value:"<18",label:"Menos de 18 anos"},{value:"18-24",label:"18 a 24 anos"},{value:"25-34",label:"25 a 34 anos"},{value:"35-44",label:"35 a 44 anos"},{value:"45-54",label:"45 a 54 anos"},{value:"55-64",label:"55 a 64 anos"},{value:"65+",label:"65 anos ou mais"}]},
+  {id:"Q_CIVIL",phase:5,label:"Sobre você",title:"Qual é o seu estado civil?",type:"single",options:[{value:"solteiro",label:"Solteiro(a)"},{value:"namorando",label:"Namorando"},{value:"casado",label:"Casado(a) ou união estável"},{value:"divorciado",label:"Divorciado(a) ou separado(a)"},{value:"viuvo",label:"Viúvo(a)"}]},
+  {id:"Q_FAMILIA",phase:5,label:"Sobre você",title:"Qual é a sua situação familiar atual?",type:"single",options:[{value:"sozinho",label:"Moro sozinho(a)"},{value:"casal_sem",label:"Moro com parceiro(a), sem filhos"},{value:"casal_filhos",label:"Moro com parceiro(a) e filho(s)"},{value:"solo",label:"Mãe ou pai solo com filho(s)"},{value:"familiares",label:"Moro com pais ou outros familiares"}]},
+  {id:"Q_OCUPACAO",phase:5,label:"Sobre você",title:"Qual é a sua ocupação principal?",type:"single",options:[{value:"clt",label:"CLT (emprego formal)"},{value:"autonomo",label:"Autônomo(a) ou freelancer"},{value:"empresario",label:"Empresário(a) ou dono(a) de negócio"},{value:"aposentado",label:"Aposentado(a)"},{value:"desempregado",label:"Desempregado(a) ou em transição"},{value:"estudante",label:"Estudante"},{value:"dolar",label:"Do lar"}]},
+  {id:"Q_RENDA",phase:5,label:"Sobre você",title:"Qual é a sua renda mensal pessoal?",type:"single",options:[{value:"0",label:"Sem renda no momento"},{value:"1k",label:"Até R$1.000"},{value:"2k",label:"De R$1.001 a R$2.000"},{value:"5k",label:"De R$2.001 a R$5.000"},{value:"10k",label:"De R$5.001 a R$10.000"},{value:"20k",label:"De R$10.001 a R$20.000"},{value:"50k",label:"De R$20.001 a R$50.000"},{value:"100k",label:"De R$50.001 a R$100.000"},{value:"100k+",label:"Acima de R$100.000"}]},
+  {id:"Q_RELIGIAO",phase:5,label:"Sobre você",title:"O que melhor descreve a sua vida espiritual?",type:"single",options:[{value:"evangelico",label:"Evangélico(a) ou protestante"},{value:"catolico",label:"Católico(a)"},{value:"espirita",label:"Espírita"},{value:"deista",label:"Tenho fé em Deus mas não sigo uma religião específica"},{value:"outra",label:"Pratico outra tradição espiritual"},{value:"ateu",label:"Não acredito em Deus, sou ateu(a) ou agnóstico(a)"}]},
+  {id:"GENERO",phase:5,label:"Sobre você",title:"Como você se identifica?",type:"single",options:[{value:"M",label:"Masculino"},{value:"F",label:"Feminino"},{value:"O",label:"Outro / Prefiro não dizer"}]},
+  {id:"NOME",phase:5,label:"Seus dados",title:"Qual o seu primeiro nome?",type:"text"},
+  {id:"EMAIL",phase:5,label:"Seus dados",title:"Seu melhor e-mail:",type:"text"},
+  {id:"WHATSAPP",phase:5,label:"Seus dados",title:"Seu WhatsApp (com DDD):",type:"text"},
+];
+
+// ═══════════════════════════════════════════════════════════════
+// MAIN COMPONENT
+// ═══════════════════════════════════════════════════════════════
+const TOTAL_Q = QUESTIONS.filter(q=>q.type!=="transition").length;
+
+function QuizDiagnostico() {
+  const [step,setStep]=useState(-1);const [answers,setAnswers]=useState({});const [result,setResult]=useState(null);const [anim,setAnim]=useState(false);const ref=useRef(null);
+  const cQ=step>=0?QUESTIONS[step]:null;const qNum=step>=0?QUESTIONS.slice(0,step+1).filter(q=>q.type!=="transition").length:0;
+  const goNext=()=>{setAnim(true);setTimeout(()=>{if(step+1>=QUESTIONS.length)setResult(calcularScores(answers));else setStep(s=>s+1);setAnim(false);if(ref.current)ref.current.scrollTo(0,0);},300);};
+  const setA=(id,v)=>setAnswers(p=>({...p,[id]:v}));
+  const canGo=()=>{if(!cQ||cQ.type==="transition")return true;const v=answers[cQ.id];if(cQ.type==="text")return v&&v.trim().length>0;if(cQ.type==="multi")return v&&v.length>0;return v!==undefined&&v!==null;};
+  useEffect(()=>{if(cQ&&cQ.type==="transition"){const t=setTimeout(goNext,3000);return()=>clearTimeout(t);}},[step]);
+  if(result)return <DiagnosticoOutput answers={answers} result={result}/>;
+
+  return (
+    <div ref={ref} style={{minHeight:"100vh",background:`linear-gradient(170deg, ${C.bg1} 0%, ${C.bg2} 40%, ${C.bg3} 100%)`,color:C.text,fontFamily:"'Crimson Text','Georgia',serif",overflow:"auto"}}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap');
+        *{box-sizing:border-box;margin:0;padding:0}
+        .q-fade{opacity:1;transition:opacity .3s ease}.q-fade-out{opacity:0}
+        .opt-btn{display:block;width:100%;text-align:left;padding:16px 20px;margin:8px 0;border:1px solid ${C.blueBorder};border-radius:12px;background:${C.card};color:${C.textMid};font-family:'Outfit',sans-serif;font-size:15px;font-weight:400;cursor:pointer;transition:all .25s;line-height:1.5}
+        .opt-btn:hover{border-color:rgba(77,166,255,0.4);background:${C.blueGlow}}
+        .opt-btn.selected{border-color:${C.blue};background:${C.blueGlow};color:#fff;box-shadow:0 0 20px rgba(77,166,255,0.1)}
+        .opt-btn.multi-selected{border-color:${C.blue};background:${C.blueGlow};color:#fff}
+        .scale-row{display:flex;gap:8px;justify-content:center;margin:24px 0;flex-wrap:wrap}
+        .scale-btn{width:56px;height:56px;border-radius:50%;border:2px solid ${C.blueBorder};background:${C.card};color:${C.textMid};font-family:'Outfit',sans-serif;font-size:18px;font-weight:600;cursor:pointer;transition:all .25s;display:flex;align-items:center;justify-content:center}
+        .scale-btn:hover{border-color:rgba(77,166,255,0.4);transform:scale(1.1)}
+        .scale-btn.selected{border-color:${C.blue};background:linear-gradient(135deg,${C.blue},${C.blueDark});color:#fff;transform:scale(1.1);box-shadow:0 0 20px rgba(77,166,255,0.3)}
+        .next-btn{display:block;margin:32px auto 0;padding:14px 48px;border:none;border-radius:40px;background:linear-gradient(135deg,${C.blue},${C.blueDark});color:#fff;font-family:'Outfit',sans-serif;font-size:16px;font-weight:600;cursor:pointer;transition:all .3s}
+        .next-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 24px rgba(77,166,255,0.4)}
+        .next-btn:disabled{opacity:.3;cursor:not-allowed}
+        .progress-bar{height:3px;background:${C.blueGlow2};border-radius:2px;overflow:hidden;margin-bottom:40px}
+        .progress-fill{height:100%;background:linear-gradient(90deg,${C.blue},${C.blueDark});transition:width .5s;border-radius:2px}
+        .transition-screen{display:flex;align-items:center;justify-content:center;min-height:60vh;text-align:center;padding:40px}
+        .transition-text{font-size:22px;line-height:1.6;color:${C.textMid};max-width:500px;font-style:italic;animation:fadeIn .8s ease}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        .text-input{width:100%;padding:16px 20px;border:1px solid ${C.blueBorder};border-radius:12px;background:${C.card};color:${C.text};font-family:'Outfit',sans-serif;font-size:16px;outline:none;transition:border-color .3s}
+        .text-input:focus{border-color:${C.blue}}
+        .text-input::placeholder{color:rgba(160,180,208,0.4)}
+      `}</style>
+
+      {step===-1?(
+        <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"100vh",padding:"40px 24px",textAlign:"center"}}>
+          <div style={{maxWidth:560}}>
+            <AscensaoHeader />
+            <div style={{height:40}}/>
+            <h1 style={{fontSize:"clamp(28px,5vw,42px)",fontWeight:700,lineHeight:1.2,marginBottom:24,background:`linear-gradient(135deg,${C.text},${C.textMid})`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>Descubra o que está operando<br/>dentro de você</h1>
+            <p style={{fontFamily:"'Outfit',sans-serif",fontSize:16,color:C.textMid,lineHeight:1.7,marginBottom:40}}>Este não é um teste genérico. É um diagnóstico construído a partir das suas respostas — que revela a origem, o padrão e o mecanismo do que te trava.</p>
+            <p style={{fontFamily:"'Outfit',sans-serif",fontSize:14,color:C.textDim,marginBottom:12}}>~5 minutos · 100% gratuito</p>
+            <button style={{display:"inline-block",padding:"18px 56px",border:"none",borderRadius:40,background:`linear-gradient(135deg,${C.blue},${C.blueDark})`,color:"#fff",fontFamily:"'Outfit',sans-serif",fontSize:18,fontWeight:600,cursor:"pointer",transition:"all .3s"}} onClick={()=>setStep(0)}
+              onMouseEnter={e=>{e.target.style.transform="translateY(-3px)";e.target.style.boxShadow="0 12px 32px rgba(77,166,255,0.4)";}}
+              onMouseLeave={e=>{e.target.style.transform="none";e.target.style.boxShadow="none";}}>Começar o Diagnóstico</button>
+          </div>
+        </div>
+      ):(
+        <div style={{maxWidth:600,margin:"0 auto",padding:"20px 24px 60px"}}>
+          <AscensaoHeader compact />
+          <div className="progress-bar"><div className="progress-fill" style={{width:`${(qNum/TOTAL_Q)*100}%`}}/></div>
+          {cQ&&cQ.type==="transition"?(<div className="transition-screen"><p className="transition-text">{cQ.text}</p></div>):cQ?(
+            <div className={`q-fade ${anim?"q-fade-out":""}`} key={step}>
+              <p style={{fontFamily:"'Outfit',sans-serif",fontSize:12,fontWeight:500,color:C.blue,letterSpacing:2,textTransform:"uppercase",marginBottom:8}}>{cQ.label}</p>
+              <h2 style={{fontSize:22,fontWeight:600,lineHeight:1.4,marginBottom:cQ.subtitle?10:28,color:C.text}}>{cQ.title}</h2>
+              {cQ.subtitle&&<p style={{fontFamily:"'Outfit',sans-serif",fontSize:13,color:C.textDim,marginBottom:24,fontStyle:"italic"}}>{cQ.subtitle}</p>}
+              {cQ.type==="single"&&cQ.options.map(o=>(<button key={o.value} className={`opt-btn ${answers[cQ.id]===o.value?"selected":""}`} onClick={()=>{setA(cQ.id,o.value);setTimeout(goNext,400);}}>{o.label}</button>))}
+              {cQ.type==="multi"&&(<>{cQ.options.map(o=>{const s=(answers[cQ.id]||[]).includes(o.value);return(<button key={o.value} className={`opt-btn ${s?"multi-selected":""}`} onClick={()=>{const p=answers[cQ.id]||[];if(o.value==="nada"||o.value==="F")setA(cQ.id,[o.value]);else setA(cQ.id,s?p.filter(v=>v!==o.value):[...p.filter(v=>v!=="nada"&&v!=="F"),o.value]);}}><span style={{marginRight:8,opacity:.5}}>{s?"✓":"○"}</span>{o.label}</button>);})}<button className="next-btn" disabled={!canGo()} onClick={goNext}>Continuar</button></>)}
+              {cQ.type==="scale"&&(<><div style={{display:"flex",justifyContent:"space-between",fontFamily:"'Outfit',sans-serif",fontSize:12,color:C.textDim,marginBottom:4,padding:"0 8px"}}><span>Não me identifico</span><span>Totalmente eu</span></div><div className="scale-row">{[0,1,2,3,4,5].map(n=>(<button key={n} className={`scale-btn ${answers[cQ.id]===n?"selected":""}`} onClick={()=>{setA(cQ.id,n);setTimeout(goNext,400);}}>{n}</button>))}</div></>)}
+              {cQ.type==="text"&&(<><input className="text-input" type={cQ.id==="EMAIL"?"email":"text"} placeholder={cQ.id==="WHATSAPP"?"(11) 99999-9999":""} value={answers[cQ.id]||""} onChange={e=>setA(cQ.id,e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&canGo())goNext();}} autoFocus/><button className="next-btn" disabled={!canGo()} onClick={goNext}>Continuar</button></>)}
+            </div>
+          ):null}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DIAGNOSTIC OUTPUT — v6.0 (redesigned architecture)
+// Fixes: P1-P7 from simulation report
+// Input utilization target: ~80%+
+// ═══════════════════════════════════════════════════════════════
+function DiagnosticoOutput({answers,result}) {
+  const nome=answers.NOME||"Você",sup=answers.P10,sup_lower=SUPERFICIES.find(s=>s.id===sup)?.label?.split("—")[0]?.trim()?.toLowerCase()||sup;
+  const {raiz,padrao,padrao_secundario,padrao_score_sec,raiz_secundaria,confianca}=result;
+  const raiz_nome=NOMES_RAIZ[raiz],padrao_nome=NOMES_PADRAO[padrao],registro=getRegistro(answers.P8);
+  const demo = moduladorDemo(answers);
+  const conds = scoringRelativo(raiz, answers);
+  const raizBlocos=gerarBlocoRaiz(raiz,answers,registro,conds);
+  const transicaoRaizSup = gerarTransicaoRaizSup(raiz, answers.P10);
+  const blocoAspiracao = gerarBlocoAspiracao(answers);
+  const cruzamento = CRUZAMENTO_ID_PAD[raiz]?.[padrao] || "";
+  // v6.0: New personalization data
+  const s1Blocos = gerarAberturaS1(padrao, sup, answers, demo);
+  const bioBlocos = gerarInsercoesBio(answers, raiz);
+  const p9_porteiro = gerarP9Porteiro(answers.P9||[], raiz, registro);
+  const p9_corpo = gerarP9Corpo(answers.P9||[]);
+  const p9_freq = gerarP9Frequencia(answers.P9||[]);
+  const ocup_ident = getOcupIdentidade(demo.ocup, padrao, demo.suf);
+  const civil_ident = getCivilIdentidade(demo.civil, demo.familia);
+  const renda_ident = RENDA_IDENTIDADE[demo.financeiro];
+
+  // ─── RENDER HELPERS ───
+  const HL=t=>(<div style={{background:C.blueGlow,borderLeft:`3px solid ${C.blue}`,padding:"18px 22px",borderRadius:"0 12px 12px 0",margin:"20px 0",fontSize:19,fontStyle:"italic",color:C.textMid,lineHeight:1.6}}>{t}</div>);
+  const P=(t,s={})=>t?<p style={{fontSize:19,lineHeight:1.85,color:C.text,marginBottom:18,...s}}>{t}</p>:null;
+  const PB=t=>t?<p style={{fontSize:19,lineHeight:1.85,color:"#fff",marginBottom:18,fontWeight:600}}>{t}</p>:null;
+  const SEC=(title,ch)=>(<div style={{marginBottom:52}}>{title&&<h3 style={{fontFamily:"'Outfit',sans-serif",fontSize:14,fontWeight:600,color:C.blue,letterSpacing:3,textTransform:"uppercase",marginBottom:22}}>{title}</h3>}{ch}</div>);
+  const DIV=()=><div style={{width:60,height:1,background:C.blueBorder,margin:"0 auto 52px"}}/>;
+  const SCI=t=>{if(!t)return null;return(<div style={{background:"rgba(10,18,35,0.5)",border:`1px solid ${C.cardBorder}`,borderRadius:12,padding:"22px 26px",margin:"18px 0",fontSize:18,lineHeight:1.85,color:C.textMid}}>{t.split('\n\n').filter(Boolean).map((p,i)=><p key={i} style={{marginBottom:i<t.split('\n\n').filter(Boolean).length-1?14:0}}>{p}</p>)}</div>)};
+  const somaD=SOMA_TEXTOS[answers.P_SOMA],ident=BLOCOS_IDENTIDADE[raiz];
+
+  return (
+    <div style={{minHeight:"100vh",background:`linear-gradient(170deg,${C.bg1} 0%,${C.bg2} 40%,${C.bg3} 100%)`,color:C.text,fontFamily:"'Crimson Text','Georgia',serif"}}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap');*{box-sizing:border-box}.dep-card{background:rgba(10,18,35,0.5);border:1px solid ${C.cardBorder};border-radius:12px;padding:26px;margin:14px 0}`}</style>
+      <div style={{maxWidth:700,margin:"0 auto",padding:"60px 24px 80px"}}>
+        {/* ══════ HEADER ══════ */}
+        <div style={{textAlign:"center",marginBottom:56}}><AscensaoHeader/><div style={{height:24}}/><h1 style={{fontSize:"clamp(30px,5vw,40px)",fontWeight:700,lineHeight:1.3,marginBottom:24,background:`linear-gradient(135deg,${C.text},${C.textMid})`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>Mapa de Interferência</h1></div>
+
+        {/* ══════ ABERTURA — v6.0: uses demo data ══════ */}
+        {SEC(null,<>
+          {P(`${nome}, o que você vai ler nas próximas linhas não é um teste genérico. É um mapa — construído a partir das suas respostas — do que está operando dentro de você agora.`,{fontSize:21})}
+          {P("Não é motivação. Não é conselho. É um diagnóstico de algo que tem nome, tem causa e tem solução.",{color:C.textMid})}
+          {P("Seja honest"+demo.suf+" consigo enquanto lê. Se algo doer, é porque é verdade.",{color:C.textMid,fontStyle:"italic"})}
+        </>)}
+        {DIV()}
+
+        {/* ══════ S1 — O ESPELHO — v6.0: anti-Barnum + aspiração + demo ══════ */}
+        {SEC("O Espelho",<>
+          {P("Vamos começar pelo que você já sabe — mesmo que nunca tenha colocado em palavras.")}
+          {/* v6.0: Abertura com aspiração (fix P7) */}
+          {s1Blocos.map((b,i)=><p key={"s1_"+i} style={{fontSize:19,lineHeight:1.85,color:C.text,marginBottom:18,...(b.s||{})}}>{b.t}</p>)}
+          {PB(`Isso é um padrão de interferência. No seu caso, se manifesta como ${padrao_nome}.`)}
+          {P(EXPLICACAO_PADRAO[padrao])}
+          {/* v6.0: Somática with demo context */}
+          {somaD&&P(somaD.texto.replace(/\{sup\}/g,sup_lower),{color:C.textMid,fontStyle:"italic"})}
+          {/* v6.0: Occupation pressure hook (fix P6) */}
+          {["carreira","financeiro"].includes(sup) && P("A pressão "+demo.ocup_ctx.rotina+" é real. Mas a interferência não opera aí — opera por baixo.",{color:C.textMid})}
+          {padrao_secundario&&padrao_score_sec>=4&&P(FRASES_SECUNDARIO[padrao_secundario],{color:C.textDim})}
+          {blocoAspiracao && P(blocoAspiracao, {color:C.textMid})}
+          <div style={{background:C.blueGlow2,borderRadius:12,padding:"26px 30px",marginTop:28}}>
+            <p style={{fontSize:21,fontWeight:600,color:C.textMid,lineHeight:1.5}}>{getFraseRevelacao(sup, raiz)}</p>
+            <p style={{fontSize:17,color:C.textDim,marginTop:8}}>A raiz do que você vive está num lugar que você nunca olhou.</p>
+          </div>
+          {PB(<>As suas respostas revelam que a interferência mais forte na sua vida é de origem <span style={{color:C.blue}}>{raiz_nome}</span>.</>)}
+        </>)}
+        {DIV()}
+
+        {/* ══════ S2 — A REVELAÇÃO — v7.4: gradation + P8 awareness ══════ */}
+        {SEC("A Revelação",<>
+          {transicaoRaizSup && P(transicaoRaizSup, {color:C.textMid, fontStyle:"italic", marginBottom:26})}
+          {["D","E"].includes(answers.P8) && P("O que vem a seguir não é informação nova pra quem já estuda. É a informação aplicada ao SEU caso — com o SEU código, a SUA raiz, o SEU mecanismo. Isso muda tudo.", {color:C.textDim, fontStyle:"italic", marginBottom:20})}
+          {raizBlocos.map((b,i)=>{
+            if(b==="__SCI_TRANS__")return <div key={i} style={{marginTop:26,marginBottom:12}}><p style={{fontSize:17,color:C.textMid,lineHeight:1.7,marginBottom:8,fontStyle:"italic"}}>O que você acabou de reconhecer não ficou só na memória. Ficou gravado numa camada que a ciência já mapeou.</p><p style={{fontSize:13,fontWeight:600,color:C.blue,letterSpacing:2,textTransform:"uppercase",fontFamily:"'Outfit',sans-serif"}}>A neurociência explica como</p></div>;
+            const isSci=b===CIENCIA_THETA[registro]||b===CIENCIA_EPIGENETICA[registro]||b===CIENCIA_BIO_AMIGDALA[registro]||b===CIENCIA_BIO_MEMORIA_DUAL[registro]||b===CIENCIA_BIO_FUSAO[registro];
+            if(isSci)return <div key={i}>{SCI(b)}</div>;
+            return <p key={i} style={{fontSize:19,lineHeight:1.85,color:C.text,marginBottom:18}}>{b}</p>;
+          })}
+          {/* v6.1: BIO-1 e BIO-2 inserções (Peças #10/#11) */}
+          {bioBlocos.length > 0 && <>
+            <p style={{fontSize:14,fontWeight:600,color:C.blue,letterSpacing:1,textTransform:"uppercase",marginTop:32,marginBottom:12,fontFamily:"'Outfit',sans-serif"}}>{raiz==="biografica"?"O terreno que já existia":"A sua história pessoal"}</p>
+            {bioBlocos.map((b,i)=><p key={"bio_"+i} style={{fontSize:19,lineHeight:1.85,color:C.text,marginBottom:18}}>{b}</p>)}
+          </>}
+          {/* v7.3: Raiz secundária quando margem < 0.5 */}
+          {raiz_secundaria && confianca === "composta" && (()=>{
+            const RAIZ_SEC_TEXTOS = {
+              familiar_financeira: "Existe uma segunda camada operando: a interferência familiar-financeira. O código sobre dinheiro que se gravou na sua casa de infância reforça a raiz principal por baixo.",
+              familiar_relacional: "Existe uma segunda camada operando: a interferência relacional. O modelo de relação que você absorveu na infância amplifica o que a raiz principal já faz.",
+              familiar_identidade: "Existe uma segunda camada operando: a interferência do EU SOU. A mensagem sobre o seu valor — instalada na infância — se soma à raiz principal.",
+              preverbal: "Existe uma segunda camada operando: a interferência pré-verbal. Algo que se instalou antes das palavras — no corpo, não na mente — amplifica a raiz principal.",
+              religiosa: "Existe uma segunda camada operando: a interferência religiosa. Uma culpa espiritual — querer pode ser errado, prosperar pode ser pecado — se soma à raiz principal.",
+              sistemica: "Existe uma segunda camada operando: a interferência sistêmica. O sistema — escola, cultura, ambiente — instalou um teto que reforça a raiz principal.",
+              biografica: "Existe uma segunda camada operando: a interferência biográfica. Um evento ou acúmulo da vida adulta se soma à raiz principal e amplifica a regressão.",
+            };
+            const txt = RAIZ_SEC_TEXTOS[raiz_secundaria];
+            if (!txt) return null;
+            return <div style={{background:C.blueGlow2,borderRadius:12,padding:"22px 26px",marginTop:28}}>
+              <p style={{fontSize:14,fontWeight:600,color:C.blue,letterSpacing:1,textTransform:"uppercase",marginBottom:10,fontFamily:"'Outfit',sans-serif"}}>Segunda camada</p>
+              <p style={{fontSize:18,lineHeight:1.75,color:C.textMid}}>{txt}</p>
+            </div>;
+          })()}
+        </>)}
+        {DIV()}
+
+        {/* ══════ S3 — POR QUE PERSISTE — v6.0: P9 woven (fix P4) ══════ */}
+        {SEC("Por que persiste",<>
+          {P(raiz==="biografica"?"Agora você sabe de onde veio. Mas se já SABE o que aconteceu, por que não consegue virar a página? Você é inteligente. Tem consciência. O tempo passou. Por que a dor não passa junto?":"Agora você sabe de onde veio. Mas se foi instalado tão cedo, por que AINDA está ativo? Você é adult"+demo.suf+". Tem consciência. Por que não desaparece?")}
+          {PB("Porque três sistemas trabalham juntos pra manter a interferência ativa.")}
+
+          {/* NÍVEL 1 — PORTEIRO */}
+          {PB("O primeiro nível é a mente.")}
+          {P(gerarIntroPorteiro(raiz,answers.P8),{color:C.textMid})}
+          {SCI(CIENCIA_PORTEIRO[registro])}
+          {P(gerarEspelhoPorteiro(raiz,padrao,sup,answers),{color:C.text,marginTop:8})}
+          {/* v6.0: P9 woven INTO porteiro (fix P4) */}
+          {p9_porteiro.map((t,i)=><p key={"p9p_"+i} style={{fontSize:18,lineHeight:1.85,color:C.textDim,marginTop:14}}>{t}</p>)}
+
+          {/* NÍVEL 2 — CORPO */}
+          {PB("O segundo nível é o corpo.")}
+          {SCI(CIENCIA_CORPO[registro])}
+          {P(gerarEspelhoCorpo(raiz,padrao,sup,answers),{color:C.text,marginTop:8})}
+          {/* v6.0: P9 woven INTO corpo (fix P4) */}
+          {p9_corpo.map((t,i)=><p key={"p9c_"+i} style={{fontSize:18,lineHeight:1.85,color:C.textDim,marginTop:14}}>{t}</p>)}
+
+          {/* NÍVEL 3 — FREQUÊNCIA */}
+          {(["D","E"].includes(answers.P8)) ? PB("E existe um terceiro nível — que você provavelmente já intuiu.") : PB("E existe um terceiro nível.")}
+          {SCI(CIENCIA_FREQUENCIA[registro])}
+          {P(gerarEspelhoFrequencia(raiz,padrao,sup,answers),{color:C.text,marginTop:8})}
+          {/* v6.0: P9 woven INTO frequência (fix P4) */}
+          {p9_freq.map((t,i)=><p key={"p9f_"+i} style={{fontSize:18,lineHeight:1.85,color:C.textDim,marginTop:14}}>{t}</p>)}
+
+          {/* EQUAÇÃO */}
+          {HL("Porteiro na mente + vício no corpo + frequência sintonizada = toda vez que você tenta mudar, os três sistemas corrigem ao mesmo tempo. Isso é a REGRESSÃO: o efeito visível da interferência.")}
+
+          {/* P_META */}
+          {answers.P_META>=4&&(<div style={{background:C.blueGlow,border:`1px solid ${C.blueBorder}`,borderRadius:12,padding:"22px 26px",marginTop:26}}><p style={{fontSize:19,lineHeight:1.85,color:C.textMid}}>Quer uma prova de que esse porteiro está ativo? <strong style={{color:"#fff"}}>{"Você mesm"+demo.suf+" me deu."}</strong> Enquanto respondia esse quiz, sentiu uma voz dizendo "isso não vai funcionar." Essa voz é o porteiro. Ele ativou AGORA, em tempo real.</p></div>)}
+
+          {(answers.P9||[]).includes("nada")
+            ? P("Algo te impede de até começar a buscar. Agora você sabe o que é: não é sobre encontrar coragem. É sobre acessar a camada CERTA.",{fontStyle:"italic",marginTop:22})
+            : P("E mesmo assim, nada mudou de forma permanente. Agora você sabe por quê: não é sobre tentar mais. É sobre acessar a camada CERTA.",{fontStyle:"italic",marginTop:22})}
+        </>)}
+        {DIV()}
+
+        {/* ══════ S4 — A IDENTIDADE SINTONIZADA — v6.0: cross identity×pattern×surface×demo (fix P5+P6) ══════ */}
+        {SEC("A Identidade Sintonizada",<>
+          {P(raiz==="biografica"?"Tudo isso que você viveu — o evento e tudo que veio depois — CONSTRUIU uma nova identidade. É o \"EU SOU\" a partir do qual tudo opera.":raiz==="sistemica"?"Tudo isso que o sistema instalou em você — camada por camada, ano após ano — CONSTRUIU uma identidade. É o \"EU SOU\" a partir do qual tudo opera.":"Tudo isso que veio da sua criação — as frases, os silêncios, os modelos — CONSTRUIU uma identidade. É o \"EU SOU\" a partir do qual tudo opera.")}
+          {P("Essa identidade não está quebrada. Funciona perfeitamente. O problema é COM O QUE ela está sintonizada: com a realidade que você já vive. Sua vida como é hoje não é acidente.")}
+          {ident&&<>
+            {(["D","E"].includes(answers.P8)) ? P("Você já sabe que algo opera por baixo. Agora tem nome. A identidade que a interferência construiu em você diz:") : P("A identidade que a interferência construiu em você diz:")}
+            {HL(ident.eu_sou)}
+            {P(ident.texto)}
+            {cruzamento && P(cruzamento)}
+            {HL(ident.highlight)}
+          </>}
+          {/* v6.0: Occupation-specific identity manifestation (fix P5+P6) */}
+          {ocup_ident && P(ocup_ident, {color:C.textMid})}
+          {/* v6.0: Civil-status cross for relational patterns (fix P6) */}
+          {["relacional","familiar"].includes(sup) && civil_ident && P(civil_ident, {color:C.textMid})}
+          {/* v6.0: Financial context for financial patterns (fix P6) */}
+          {sup==="financeiro" && renda_ident && demo.ocup!=="desempregado" && P(renda_ident, {color:C.textMid})}
+          {/* Age-aware framing */}
+          {demo.registro_etario === "maduro" && P(demo.tempo_frase+", a identidade parece parte de quem você é. Parece \"personalidade.\" Não é. É programação. E programação se remove independente de quanto tempo esteve ativa.", {color:C.textMid})}
+          {demo.registro_etario === "jovem" && P("Você ainda é jovem. E isso é uma vantagem: quanto antes acessar o código, menos anos ele tem pra se consolidar.", {color:C.textMid})}
+          {/* v6.0: Family situation context (fix P6) */}
+          {demo.familia_ctx && demo.familia !== "sozinho" && !(civil_ident && civil_ident.includes("filhos")) && P(demo.familia_ctx+".", {color:C.textDim})}
+          {/* v6.0: Religion calibration for religiosa raiz (fix P6) */}
+          {raiz==="religiosa" && demo.espiritual==="secular" && P("Mesmo sem seguir uma religião hoje, o código religioso que se instalou na infância continua operando. Você pode ter saído da igreja. A igreja não saiu de você.", {color:C.textMid})}
+          {raiz==="religiosa" && demo.espiritual==="espiritual" && P("Você tem fé — genuína. Mas a interferência usa a linguagem da sua fé pra travar. Distinguir Deus do código é o primeiro passo pra reconectar de verdade.", {color:C.textMid})}
+          {raiz_secundaria && confianca === "composta" && P("E essa não é a única camada. A interferência de origem "+NOMES_RAIZ[raiz_secundaria]+" opera junto — reforçando o mesmo ciclo por outro ângulo. São duas frequências sobrepostas gerando a mesma regressão.", {color:C.textMid})}
+          {P("Enquanto a identidade estiver sintonizada com a realidade que você VIVE — e não com a que QUER — a interferência vai continuar gerando regressão.")}
+          {P("Não é culpa sua. Não é azar. É interferência — e tem como remover.",{color:C.textMid,fontStyle:"italic"})}
+        </>)}
+        {DIV()}
+
+        {/* ══════ S5 — PROVA SOCIAL ══════ */}
+        {SEC("Quem já esteve onde você está",<>
+          {P(`Já ajudamos pessoas como você — ${demo.ocup_ctx.label}, na mesma faixa de idade — que viviam o mesmo ciclo e achavam que o problema era ${sup_lower}.`)}
+          {(()=>{const deps=DEPOIMENTOS[raiz]||[];const ocup=demo.ocup;const matched=deps.filter(d=>!d.ocup||d.ocup.includes(ocup));const selected=(matched.length>=2?matched:deps).slice(0,2);return selected.map((d,i)=>(<div key={i} className="dep-card"><p style={{fontSize:19,lineHeight:1.75,color:C.textMid,fontStyle:"italic"}}>"{d.texto}"</p><p style={{fontSize:15,color:C.blue,marginTop:14,fontFamily:"'Outfit',sans-serif"}}>— {d.autor}</p></div>));})()}
+          {P(`Essas pessoas viviam o mesmo ciclo que você. Até que entenderam: o problema nunca foi ${sup_lower}. Foi a identidade que a interferência construiu.`,{color:C.textDim})}
+        </>)}
+        {DIV()}
+
+        {/* ══════ S6 — CTA — v6.0: P_ASPIRACAO + P35 emotional close (fix P7) ══════ */}
+        {SEC(null,<>
+          {P("Ler o mapa não remove a interferência. Tudo que você leu opera na mente consciente — em estado beta, com o porteiro ativo.")}
+          {P(getFechamento(sup, demo.ocup))}
+          {/* v6.0: P_ASPIRACAO + P35 contrast (fix P7) */}
+          {answers.P_ASPIRACAO && answers.P35 && answers.P_ASPIRACAO === answers.P35 && P(`Você disse que se nada te impedisse, iria ${ASPIRACAO_TEXTOS[answers.P_ASPIRACAO]}. E que se a interferência sumisse, ${P35_TEXTOS[answers.P35]}. A mesma resposta — porque a interferência É o que te impede. E no dia 27, ela vai ser confrontada.`, {fontWeight:600})}
+          {answers.P_ASPIRACAO && answers.P35 && answers.P_ASPIRACAO !== answers.P35 && P(`Você disse que se nada te impedisse, iria ${ASPIRACAO_TEXTOS[answers.P_ASPIRACAO]}. Mas quando perguntei o que mudaria se a interferência sumisse, disse outra coisa: ${P35_TEXTOS[answers.P35]}. A diferença entre as duas respostas revela as camadas da interferência. No dia 27, as duas vão ser confrontadas.`, {fontWeight:600})}
+          {answers.P_ASPIRACAO && !answers.P35 && P("Você disse que se nada te impedisse, iria " + ASPIRACAO_TEXTOS[answers.P_ASPIRACAO] + ". Esse \"nada\" tem nome. É a interferência. E no dia 27, ela vai ser confrontada.", {fontWeight:600})}
+          <div style={{background:C.blueGlow,border:`1px solid ${C.blueBorder}`,borderRadius:16,padding:"36px 30px",marginTop:36,textAlign:"center"}}>
+            <AscensaoHeader compact/>
+            <div style={{height:16}}/>
+            <h3 style={{fontSize:26,fontWeight:700,color:"#fff",marginBottom:14}}>27 de Abril · 20h · Ao Vivo</h3>
+            <p style={{fontSize:18,lineHeight:1.7,color:C.textMid,marginBottom:26}}>Paulo Aguiar vai fazer o que nenhum texto consegue: acessar a camada onde a interferência opera — e iniciar a remoção.</p>
+            <button style={{display:"inline-block",padding:"18px 52px",border:"none",borderRadius:40,background:`linear-gradient(135deg,${C.blue},${C.blueDark})`,color:"#fff",fontFamily:"'Outfit',sans-serif",fontSize:18,fontWeight:600,cursor:"pointer",transition:"all .3s"}} onMouseEnter={e=>{e.target.style.transform="translateY(-2px)";e.target.style.boxShadow="0 12px 32px rgba(77,166,255,0.4)";}} onMouseLeave={e=>{e.target.style.transform="none";e.target.style.boxShadow="none";}}>Ativar lembrete</button>
+          </div>
+          {answers.P31>=4&&<p style={{fontSize:15,lineHeight:1.7,color:C.textDim,marginTop:26,textAlign:"center"}}>Se precisa de ajuda profissional imediata, o CVV (188) está disponível 24h.</p>}
+        </>)}
+      </div>
+    </div>
+  );
+}
+
+
+// ═══ RENDER ═══
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<QuizDiagnostico />);
+    </script>
+</body>
+</html>
